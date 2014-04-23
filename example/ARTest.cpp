@@ -55,10 +55,6 @@ vector<CvarMarker> g_marker;
 int g_lastdetect = 0;
 int g_currentWindow, g_originalWindow;
 
-IplImage *g_image, *g_object;
-
-int g_bTeapot = 1;
-
 void display() {
     IplImage* frame = cvQueryFrame(g_cap);
     cvFlip(frame, frame);
@@ -72,9 +68,6 @@ void display() {
     acGlTextureProject((unsigned char*) frame->imageData, frame->width,
                        frame->height, frame->nChannels, 1);
     glClear(GL_DEPTH_BUFFER_BIT);
-
-    //AR detection
-    GLdouble modelview[16] = { 0 };
 
     //Detect marker
     int ar_detect = cvarArMultRegistration(frame, &g_marker, g_vtpl, &g_cam,
@@ -92,9 +85,7 @@ void display() {
             glLoadMatrixd(g_marker[i].modelview);
             glRotatef(90, 1, 0, 0);
             glTranslatef(0, 0.5, 0);
-
-            if (g_bTeapot)
-                glutSolidTeapot(1);
+            glutSolidTeapot(1);
 
             //glGetFloatv(GL_PROJECTION_MATRIX,g_projection);
             //glGetFloatv(GL_MODELVIEW_MATRIX,g_modelview);
@@ -146,9 +137,6 @@ void keyboard(unsigned char key, int x, int y) {
     case 27:
         cvReleaseCapture(&g_cap);
         exit(0);
-        break;
-    case 'a': //Turn off the teapot
-        g_bTeapot = !g_bTeapot;
         break;
     }
 }
