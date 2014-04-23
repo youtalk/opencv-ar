@@ -41,237 +41,214 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
-
 CvarCamera g_cam; //The global camera data
 
 vector<CvarTemplate> g_vtpl; //Vector of AR template
 
 CvCapture* g_cap; //Video capturing
 
-
 float g_projection[16];
-double  g_modelview[16];
+double g_modelview[16];
 
 vector<CvarMarker> g_marker;
 
 int g_lastdetect = 0;
-int g_currentWindow,g_originalWindow;
+int g_currentWindow, g_originalWindow;
 
-IplImage *g_image,*g_object;
+IplImage *g_image, *g_object;
 
 int g_bTeapot = 1;
 
-void display()
-{
-	IplImage* frame = cvQueryFrame(g_cap);
-	cvFlip(frame,frame);
+void display() {
+    IplImage* frame = cvQueryFrame(g_cap);
+    cvFlip(frame, frame);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glColor3f(1, 1, 1);
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
+    glPushMatrix();
+    acGlTextureProject((unsigned char*) frame->imageData, frame->width,
+                       frame->height, frame->nChannels, 1);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
+    //AR detection
+    GLdouble modelview[16] = { 0 };
 
-	glColor3f(1,1,1);
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-	glPushMatrix();
-	acGlTextureProject((unsigned char*)frame->imageData,frame->width,frame->height,
-		frame->nChannels,1);
-	glClear(GL_DEPTH_BUFFER_BIT);
+    //Detect marker
+    int ar_detect = cvarArMultRegistration(frame, &g_marker, g_vtpl, &g_cam,
+                                           AC_THRESH_AUTO, 0.94);
 
-	//AR detection
-	GLdouble modelview[16] = {0};
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
 
-	//Detect marker
-	int ar_detect = cvarArMultRegistration(frame,&g_marker,g_vtpl,&g_cam,AC_THRESH_AUTO,0.94);
+    int test = 0;
+    double testmodel[16] = { 0 };
+    for (int i = 0; i < ar_detect; i++) {
+        glEnable(GL_LIGHTING);
+        glEnable(GL_LIGHT0);
 
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+        if (g_marker[i].tpl == 0) {
 
-	int test=0;
-	double testmodel[16] = {0};
-	for(int i=0;i<ar_detect;i++) {
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
+            glLoadMatrixd(g_marker[i].modelview);
+            glRotatef(90, 1, 0, 0);
+            glTranslatef(0, 0.5, 0);
 
-		if(g_marker[i].tpl == 0) {
+            if (g_bTeapot)
+                glutSolidTeapot(1);
 
-			glLoadMatrixd(g_marker[i].modelview);
-			glRotatef(90,1,0,0);
-			glTranslatef(0,0.5,0);
+            //glGetFloatv(GL_PROJECTION_MATRIX,g_projection);
+            //glGetFloatv(GL_MODELVIEW_MATRIX,g_modelview);
+        } else if (g_marker[i].tpl == 1) {
+            glLoadMatrixd(g_marker[i].modelview);
+            glRotatef(90, 1, 0, 0);
+            glTranslatef(0, 0.5, 0);
+            glutSolidCube(1);
 
-			if(g_bTeapot)
-				glutSolidTeapot(1);
+        } else if (g_marker[i].tpl == 2) {
+            glLoadMatrixd(g_marker[i].modelview);
+            //glRotatef(90,1,0,0);
+            glTranslatef(0, 0, 0.5);
+            glutSolidSphere(1, 8, 8);
+        } else if (g_marker[i].tpl == 3) {
+            glLoadMatrixd(g_marker[i].modelview);
+            //glRotatef(90,1,0,0);
+            glTranslatef(0, 0, 0.5);
+            glutSolidTorus(0.5, 1, 8, 12);
+            printf("%d:\n", g_marker[i].tpl);
+            for (int j = 0; j < 4; j++) {
+                for (int k = 0; k < 4; k++) {
+                    printf("%f\t", g_marker[i].modelview[j * 4 + k]);
+                }
+                printf("\n");
+            }
+            printf("\n");
+            test = 1;
+            memcpy(testmodel, g_marker[i].modelview, 16 * sizeof(double));
 
-			//glGetFloatv(GL_PROJECTION_MATRIX,g_projection);
-			//glGetFloatv(GL_MODELVIEW_MATRIX,g_modelview);
-		}
-		else if(g_marker[i].tpl == 1) {
-			glLoadMatrixd(g_marker[i].modelview);
-			glRotatef(90,1,0,0);
-			glTranslatef(0,0.5,0);
-			glutSolidCube(1);
+        } else if (g_marker[i].tpl == 4) {
+            glLoadMatrixd(g_marker[i].modelview);
+            glTranslatef(0, 0, 0.5);
+            glutWireTorus(0.5, 1, 8, 12);
+            printf("%d:\n", g_marker[i].tpl);
+            for (int j = 0; j < 4; j++) {
+                for (int k = 0; k < 4; k++) {
+                    printf("%f\t", g_marker[i].modelview[j * 4 + k]);
+                }
+                printf("\n");
+            }
+            printf("\n");
 
-		}
-		else if(g_marker[i].tpl == 2) {
-			glLoadMatrixd(g_marker[i].modelview);
-			//glRotatef(90,1,0,0);
-			glTranslatef(0,0,0.5);
-			glutSolidSphere(1,8,8);
-		}
-		else if(g_marker[i].tpl == 3) {
-			glLoadMatrixd(g_marker[i].modelview);
-			//glRotatef(90,1,0,0);
-			glTranslatef(0,0,0.5);
-			glutSolidTorus(0.5,1,8,12);
-			printf("%d:\n",g_marker[i].tpl);
-			for(int j=0;j<4;j++) {
-				for(int k=0;k<4;k++) {
-					printf("%f\t",g_marker[i].modelview[j*4+k]);
-				}
-				printf("\n");
-			}
-			printf("\n");
-			test = 1;
-			memcpy(testmodel,g_marker[i].modelview,16*sizeof(double));
+            //Generate another
+            if (test == 1) {
+                for (int j = 0; j < 4; j++) {
+                    for (int k = 0; k < 4; k++) {
+                        testmodel[j * 4 + k] +=
+                                g_marker[i].modelview[j * 4 + k];
+                        testmodel[j * 4 + k] /= 2;
+                    }
+                }
+            }
+            glLoadMatrixd(testmodel);
+            glTranslatef(0, 0, 0.5);
+            glutWireTorus(0.5, 1, 8, 12);
+        } //*/
 
-		}
-		else if(g_marker[i].tpl == 4) {
-			glLoadMatrixd(g_marker[i].modelview);
-			glTranslatef(0,0,0.5);
-			glutWireTorus(0.5,1,8,12);
-			printf("%d:\n",g_marker[i].tpl);
-			for(int j=0;j<4;j++) {
-				for(int k=0;k<4;k++) {
-					printf("%f\t",g_marker[i].modelview[j*4+k]);
-				}
-				printf("\n");
-			}
-			printf("\n");
+        glDisable(GL_LIGHTING);
 
-			//Generate another
-			if(test ==1) {
-				for(int j=0;j<4;j++) {
-					for(int k=0;k<4;k++) {
-						testmodel[j*4+k] += g_marker[i].modelview[j*4+k];
-						testmodel[j*4+k] /= 2;
-					}
-				}
-			}
-			glLoadMatrixd(testmodel);
-			glTranslatef(0,0,0.5);
-			glutWireTorus(0.5,1,8,12);
-		}//*/
+    }
 
-		glDisable(GL_LIGHTING);
+    glPopMatrix();
 
-	}
-
-	glPopMatrix();
-
-	glutSwapBuffers();
+    glutSwapBuffers();
 }
 
+void reshape(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
 
-void reshape(int w,int h)
-{
-	glViewport(0,0,w,h);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+    double projection[16];
+    cvarCameraProjection(&g_cam, projection);
 
+    acMatrixTransposed(projection);
+    glLoadMatrixd(projection);
 
-	double projection[16];
-	cvarCameraProjection(&g_cam,projection);
-
-
-	acMatrixTransposed(projection);
-	glLoadMatrixd(projection);
-
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
+void mouse(int button, int state, int x, int y) {
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
 
-void mouse(int button,int state,int x,int y) {
-	if(button==GLUT_LEFT_BUTTON && state==GLUT_DOWN) {
-
-	}
+    }
 }
 
-void idle()
-{
-	glutPostRedisplay();
+void idle() {
+    glutPostRedisplay();
 }
 
 void visible(int vis) {
-	if(vis == GLUT_VISIBLE) {
-		glutIdleFunc(idle);
-	}
-	else
-		glutIdleFunc(NULL);
+    if (vis == GLUT_VISIBLE) {
+        glutIdleFunc(idle);
+    } else
+        glutIdleFunc(NULL);
 }
 
-void keyboard(unsigned char key,int x,int y)
-{
-	switch(key)
-	{
-	case 27:
-		cvReleaseCapture(&g_cap);
-		exit(0);
-		break;
-	case 'a': //Turn off the teapot
-		g_bTeapot = !g_bTeapot;
-		break;
-	}
+void keyboard(unsigned char key, int x, int y) {
+    switch (key) {
+    case 27:
+        cvReleaseCapture(&g_cap);
+        exit(0);
+        break;
+    case 'a': //Turn off the teapot
+        g_bTeapot = !g_bTeapot;
+        break;
+    }
 }
 
-
-
-int main(int argc,char** argv) {
+int main(int argc, char** argv) {
     if (argc < 3)
         return -1;
 
     g_cap = cvCreateCameraCapture(atoi(argv[1]));
-	if(!g_cap) {
-		fprintf(stderr,"Create camera capture failed\n");
-		return 1;
-	}
+    if (!g_cap) {
+        fprintf(stderr, "Create camera capture failed\n");
+        return 1;
+    }
 
-	CvarTemplate tpl;
-	cvarLoadTemplateTag(&tpl,argv[2]);
-	//cvarLoadTag(&tpl,0x49a99b1d19aaaa44LL); //Using code
-	g_vtpl.push_back(tpl);
+    CvarTemplate tpl;
+    cvarLoadTemplateTag(&tpl, argv[2]);
+    //cvarLoadTag(&tpl, 0x49a99b1d19aaaa44LL); //Using code
+    g_vtpl.push_back(tpl);
 
+    //CvarTemplate tpl2;
+    //cvarLoadTemplate(&tpl2, "aclib.png",1);
+    //g_vtpl.push_back(tpl2);
 
-	// CvarTemplate tpl2;
-	// cvarLoadTemplate(&tpl2,"aclib.png",1);
-	// g_vtpl.push_back(tpl2);
+    IplImage* frame = cvQueryFrame(g_cap);
+    cvarReadCamera(NULL, &g_cam);
+    cvarCameraScale(&g_cam, frame->width, frame->height);
 
+    //Initialisation
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitWindowSize(640, 480);
 
-	IplImage* frame = cvQueryFrame(g_cap);
-	cvarReadCamera(NULL,&g_cam);
-	cvarCameraScale(&g_cam,frame->width,frame->height);
+    glutCreateWindow("MyGLUT");
 
+    //Callback
+    glutDisplayFunc(display);
+    glutReshapeFunc(reshape);
+    glutKeyboardFunc(keyboard); //ASCII key
+    glutMouseFunc(mouse);
+    glutIdleFunc(idle);
 
-	//Initialisation
-	glutInit(&argc,argv);
-	glutInitDisplayMode(GLUT_DOUBLE|GLUT_RGB);
-	glutInitWindowSize(640,480);
+    glEnable(GL_DEPTH_TEST);
 
-	glutCreateWindow("MyGLUT");
+    glutMainLoop();
+    cvReleaseCapture(&g_cap);
 
-
-	//Callback
-	glutDisplayFunc(display);
-	glutReshapeFunc(reshape);
-	glutKeyboardFunc(keyboard); //ASCII key
-	glutMouseFunc(mouse);
-	glutIdleFunc(idle);
-
-	glEnable(GL_DEPTH_TEST);
-
-	glutMainLoop();
-	cvReleaseCapture(&g_cap);
-
-	return 0;
+    return 0;
 }
