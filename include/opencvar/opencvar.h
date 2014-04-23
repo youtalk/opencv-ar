@@ -197,14 +197,6 @@ Augmented Reality
 ****************/
 
 /**
- * \brief Load the template
- * \param tpl [out]	The struct store the template
- * \param type The type of the template, default is like ARToolKit, 1 = Whole image
- * \return 1 = success, 0 = fail
- */
-AC_DLL int cvarLoadTemplate(CvarTemplate* tpl,const char* filename,int type=0);
-
-/**
  * \brief Load template image, 10x10 size, and convert to ARTag
  *
  * This function will call cvarLoadTag()

@@ -223,10 +223,6 @@ int main(int argc, char** argv) {
     //cvarLoadTag(&tpl, 0x49a99b1d19aaaa44LL); //Using code
     g_vtpl.push_back(tpl);
 
-    //CvarTemplate tpl2;
-    //cvarLoadTemplate(&tpl2, "aclib.png",1);
-    //g_vtpl.push_back(tpl2);
-
     IplImage* frame = cvQueryFrame(g_cap);
     cvarReadCamera(NULL, &g_cam);
     cvarCameraScale(&g_cam, frame->width, frame->height);
