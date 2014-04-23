@@ -427,6 +427,7 @@ void acArray2DRotateub(unsigned char* arr,int w,int h,int rot) {
 				break;
 			case 3:
 				arr[i*w+j] = temp[j*w+(h-1-i)];
+				break;
 			}
 		}
 	}

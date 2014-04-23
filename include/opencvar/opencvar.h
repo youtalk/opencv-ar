@@ -101,16 +101,6 @@ struct CvarMarker {
 };
 
 
-/**
- * \brief SURF
- */
-struct CvarSurf {
-	IplImage *object;
-	CvSeq *objectKeypoints;
-	CvSeq *objectDescriptors;	
-};
-
-
 extern "C" {
 
 /**
@@ -362,38 +352,6 @@ int cvarTrack(CvPoint2D32f pt1[4],CvPoint2D32f pt2[4]);
  * \param matchThresh	Theshold value for template matching in range [0,1]
  */
 int cvarArMultRegistration(IplImage* img,vector<CvarMarker>* vMarker,vector<CvarTemplate> vTpl,CvarCamera* cam,int thresh,double matchThresh);
-
-/**
- * \brief Convert RGB to Gray
- *
- * This function is written because of unknown problem for the function cvCvtColor() in grayscale
- */
-void cvarRgb2Gray(IplImage* src,IplImage* dst);
-
-/**
- * \brief Skin segmentation
- */
-AC_DLL void acSkinSegmentation(unsigned char* imageData,int width,int height);
-
-/**
- * \brief Finger tracking
- * \param finger	Finger template
- * \param x	Output of x-coordinate
- * \param y Output of y-coordinate
- * \param draw Mark the finger with green point
- */
-AC_DLL void acFingerTracking(IplImage* finger,unsigned char* data,int width,int height,int* x,int* y,int draw=1);
-
-
-///////SURF
-
-/**
- * \brief SURF matching
- */
-void cvarSurfMatch(IplImage *image,IplImage* object,
-	CvSeq *objectKeypoints,CvSeq *objectDescriptors,
-	CvarCamera* cam,double* modelview,
-	IplImage* result); 
 
 } //extern
 

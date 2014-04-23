@@ -248,6 +248,7 @@ void acGlPrintGet(GLenum pname) {
 					break;
 				default:
 					cout<<temp[0]<<endl;
+					break;
 			}
 			break;
 		case GL_CURRENT_COLOR:

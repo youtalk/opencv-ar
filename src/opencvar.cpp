@@ -258,6 +258,7 @@ CvSeq* cvarFindSquares( IplImage* img, CvMemStorage* storage,int threshold,int i
 					break;
 				case 2:
 					chkContour = fabs(cvContourArea(result,CV_WHOLE_SEQ)) > 500;
+					break;
 				}
 				
                 if( result->total == 4 &&
@@ -945,6 +946,7 @@ int cvarArRegistration(IplImage* img,CvPoint2D32f* points,CvarTemplate tpl,int t
 					break;
 				case 2:
 					cvarRotSquare(points,4);
+					break;
 				}
 				res = 1;
 			}
@@ -1215,6 +1217,7 @@ int cvarArMultRegNoTrack(IplImage* img,vector<CvarMarker>* vMarker,vector<CvarTe
 						break;
 					case 2:
 						cvarRotSquare(points,4);
+						break;
 					}
 					
 					res = 1;
@@ -1501,6 +1504,7 @@ int cvarArMultRegistration(IplImage* img,vector<CvarMarker>* vMarker,vector<Cvar
 						break;
 					case 2:
 						cvarRotSquare(points,4);
+						break;
 					}
 					
 					res = 1;
@@ -1585,323 +1589,3 @@ int cvarArMultRegistration(IplImage* img,vector<CvarMarker>* vMarker,vector<Cvar
 	
 	return vMarker->size();
 }
-
-
-/////////////// 2010-05-03
-/**
- * \brief Convert RGB to Gray
- *
- * This function is written because of unknown problem for the function cvCvtColor() in grayscale
- */
-void cvarRgb2Gray(IplImage* src,IplImage* dst) {
-	for(int i=0;i<src->height;i++) {
-		for(int j=0;j<src->width;j++) {
-			dst->imageData[i*src->width+j] = src->imageData[(i*src->width+j)*3+0] * 0.299 +
-				src->imageData[(i*src->width+j)*3+1] * 0.587 +
-				src->imageData[(i*src->width+j)*3+2] * 0.114;
-		}
-	}
-}
-
-//////////////
-void acSkinSegmentation(unsigned char* imageData,int width,int height) {
-	for(int i=0;i<width * height *3;i+=3) {
-		int r,g,b;
-		r = imageData[i];
-		g = imageData[i+1];
-		b = imageData[i+2];
-		
-		int max = r;
-		if(g>max)
-			max = g;
-		if(b>max)
-			max = b;
-		
-		int min = r;
-		if(g<min)
-			min = g;
-		if(b<min)
-			min = b;
-		
-		if(r > 95 && g > 40 && b > 20 &&
-			(max - min > 15) &&
-			(abs(r - g) > 15) &&
-			r > g && r > b) 
-		{
-		}
-		else {
-			imageData[i] = imageData[i+1] = imageData[i+2] = 0;
-		}
-	}
-}
-
-void acFingerTracking(IplImage* finger,unsigned char* data,int width,int height,int* x,int* y,int draw) {
-	//For skin segmentation
-	IplImage* img = cvCreateImage(cvSize(width,height),IPL_DEPTH_8U,3);
-	img->origin = 1;
-	memcpy(img->imageData,data,width*height*3);
-
-	//For drawing the cursor
-	IplImage* cur = cvCloneImage(img);
-	
-	cvCvtColor(img,img,CV_BGR2RGB);
-	acSkinSegmentation((unsigned char*)img->imageData,img->width,img->height);
-	cvCvtColor(img,img,CV_RGB2BGR);
-	
-	IplImage* result = cvCreateImage(cvSize(img->width - finger->width+1,
-		img->height - finger->height +1),
-		IPL_DEPTH_32F,1);
-	result->origin=1;
-	
-	cvMatchTemplate(img,finger,result,CV_TM_CCORR_NORMED);
-	double minval,maxval;
-	CvPoint minloc,maxloc;
-	cvMinMaxLoc(result,&minval,&maxval,&minloc,&maxloc);
-	
-	int ret = 0;
-	*x = *y = -1;
-	if(maxval>0.6) {
-		//cvCircle(result,maxloc,1,cvScalar(0,255,0),5);
-		
-		maxloc.x += (float)finger->width/2;
-		maxloc.y += (float)finger->height/2;
-		
-		if(draw) {
-			cvCircle(cur,maxloc,1,cvScalar(0,255,0),5);
-			memcpy(data,cur->imageData,cur->imageSize);
-		}
-		*x = maxloc.x;
-		*y = maxloc.y;
-		ret = 1;
-	}
-	
-	
-	cvReleaseImage(&img);
-	cvReleaseImage(&cur);
-	cvReleaseImage(&result);
-
-}
-
-
-//////////////////SURF
-
-static double compareSURFDescriptors( const float* d1, const float* d2, double best, int length )
-{
-    double total_cost = 0;
-    assert( length % 4 == 0 );
-    for( int i = 0; i < length; i += 4 )
-    {
-        double t0 = d1[i] - d2[i];
-        double t1 = d1[i+1] - d2[i+1];
-        double t2 = d1[i+2] - d2[i+2];
-        double t3 = d1[i+3] - d2[i+3];
-        total_cost += t0*t0 + t1*t1 + t2*t2 + t3*t3;
-        if( total_cost > best )
-            break;
-    }
-    return total_cost;
-}
-
-
-static int naiveNearestNeighbor( const float* vec, int laplacian,
-                      const CvSeq* model_keypoints,
-                      const CvSeq* model_descriptors )
-{
-    int length = (int)(model_descriptors->elem_size/sizeof(float));
-    int i, neighbor = -1;
-    double d, dist1 = 1e6, dist2 = 1e6;
-    CvSeqReader reader, kreader;
-    cvStartReadSeq( model_keypoints, &kreader, 0 );
-    cvStartReadSeq( model_descriptors, &reader, 0 );
-
-    for( i = 0; i < model_descriptors->total; i++ )
-    {
-        const CvSURFPoint* kp = (const CvSURFPoint*)kreader.ptr;
-        const float* mvec = (const float*)reader.ptr;
-    	CV_NEXT_SEQ_ELEM( kreader.seq->elem_size, kreader );
-        CV_NEXT_SEQ_ELEM( reader.seq->elem_size, reader );
-        if( laplacian != kp->laplacian )
-            continue;
-        
-        //if(kp->size<10)
-        	//continue;
-        
-        d = compareSURFDescriptors( vec, mvec, dist2, length );
-        if( d < dist1 )
-        {
-            dist2 = dist1;
-            dist1 = d;
-            neighbor = i;
-        }
-        else if ( d < dist2 )
-            dist2 = d;
-    }
-    if ( dist1 < 0.6*dist2 )
-        return neighbor;
-    return -1;
-}
-
-static void findPairs( const CvSeq* objectKeypoints, const CvSeq* objectDescriptors,
-           const CvSeq* imageKeypoints, const CvSeq* imageDescriptors, vector<int>& ptpairs )
-{
-    int i;
-    CvSeqReader reader, kreader;
-    cvStartReadSeq( objectKeypoints, &kreader );
-    cvStartReadSeq( objectDescriptors, &reader );
-    ptpairs.clear();
-
-    for( i = 0; i < objectDescriptors->total; i++ )
-    {
-        const CvSURFPoint* kp = (const CvSURFPoint*)kreader.ptr;
-        const float* descriptor = (const float*)reader.ptr;
-        CV_NEXT_SEQ_ELEM( kreader.seq->elem_size, kreader );
-        CV_NEXT_SEQ_ELEM( reader.seq->elem_size, reader );
-
-        //if(kp->size<20)
-        	//continue;
- 
-        int nearest_neighbor = naiveNearestNeighbor( descriptor, kp->laplacian, imageKeypoints, imageDescriptors );
-        if( nearest_neighbor >= 0 )
-        {
-            ptpairs.push_back(i);
-            ptpairs.push_back(nearest_neighbor);
-        }
-    }
-}
-
-
-/* a rough implementation for object location */
-static int locatePlanarObject( const CvSeq* objectKeypoints, const CvSeq* objectDescriptors,
-                    const CvSeq* imageKeypoints, const CvSeq* imageDescriptors,
-                    const CvPoint src_corners[4], CvPoint dst_corners[4] )
-{
-    double h[9];
-    CvMat _h = cvMat(3, 3, CV_64F, h);
-    vector<int> ptpairs;
-    vector<CvPoint2D32f> pt1, pt2;
-    CvMat _pt1, _pt2;
-    int i, n;
-
-    findPairs( objectKeypoints, objectDescriptors, imageKeypoints, imageDescriptors, ptpairs );
-
-    n = ptpairs.size()/2;
-    if( n < 4 )
-        return 0;
-
-    pt1.resize(n);
-    pt2.resize(n);
-    for( i = 0; i < n; i++ )
-    {
-        pt1[i] = ((CvSURFPoint*)cvGetSeqElem(objectKeypoints,ptpairs[i*2]))->pt;
-        pt2[i] = ((CvSURFPoint*)cvGetSeqElem(imageKeypoints,ptpairs[i*2+1]))->pt;
-    }
-
-    _pt1 = cvMat(1, n, CV_32FC2, &pt1[0] );
-    _pt2 = cvMat(1, n, CV_32FC2, &pt2[0] );
-    cout<<100<<endl;
-    if( !cvFindHomography( &_pt1, &_pt2, &_h, CV_LMEDS, 5 )) {
-    	cout<<400<<endl;
-        return 0;
-    }
-    cout<<200<<endl;
-
-    for( i = 0; i < 4; i++ )
-    {
-        double x = src_corners[i].x, y = src_corners[i].y;
-        double Z = 1./(h[6]*x + h[7]*y + h[8]);
-        double X = (h[0]*x + h[1]*y + h[2])*Z;
-        double Y = (h[3]*x + h[4]*y + h[5])*Z;
-        dst_corners[i] = cvPoint(cvRound(X), cvRound(Y));
-    }
-
-    return 1;
-}
-
-void cvarSurfMatch(IplImage *image,IplImage* object,
-	CvSeq *objectKeypoints,CvSeq *objectDescriptors,
-	CvarCamera* cam,double* modelview,
-	IplImage* result) 
-{
-	float ratio = (float)object->width / object->height;
-
-	CvMemStorage *imgStorage = cvCreateMemStorage();
-    CvSeq *imageKeypoints = 0, *imageDescriptors = 0;
-
-    CvSURFParams imgParam = cvSURFParams(500,1);
-    cvExtractSURF( image, 0, &imageKeypoints, &imageDescriptors, imgStorage, imgParam );
-
-    
-    CvRect rect = cvGetImageROI(image);
-    
-    CvPoint src_corners[4] = { {0,0},{object->width,0},
-    	{object->width,object->height},
-    	{0,object->height}};
-    CvPoint dst_corners[4];
-    
-    if(locatePlanarObject(objectKeypoints,objectDescriptors,imageKeypoints,imageDescriptors,
-    	src_corners,dst_corners)) {
-		
-    	CvMat* objPoint = cvCreateMat(4,3,CV_64F);
-		CvMat* imgPoint = cvCreateMat(4,2,CV_64F);
-		
-		
-    
-    	for(int i=0;i<4;i++) {
-    		
-			CvPoint r1 = dst_corners[i%4];
-			CvPoint r2 = dst_corners[(i+1)%4];
-			cvLine(result,cvPoint(r1.x,r1.y),
-				cvPoint(r2.x,r2.y),cvScalar(255,0,0));
-			
-			objPoint->data.db[i*3] = ((2*(src_corners[i].x/object->width))-1)*ratio;
-			objPoint->data.db[i*3+1] = (2*(src_corners[i].y/object->height))-1;
-			objPoint->data.db[i*3+2] = 0;
-			imgPoint->data.db[i*2] = r1.x;
-			imgPoint->data.db[i*2+1] = r1.y;
-			
-			//printf("%d %d %d %d\n",r1.x,r1.y,r2.x,r2.y);
-			//printf("data %f %f\n",objPoint->data.db[i*2],objPoint->data.db[i*2+1]);
-
-		}
-		
-		cvarFindCamera(cam,objPoint,imgPoint,modelview);
-		cvReleaseMat(&objPoint);
-		cvReleaseMat(&imgPoint);
-    }//*/
-    
-   
-    
-    /*vector<int> ptpairs;
-    findPairs( objectKeypoints, objectDescriptors, imageKeypoints, imageDescriptors, ptpairs );
-    //flannFindPairs( objectKeypoints, objectDescriptors, imageKeypoints, imageDescriptors, ptpairs );
-    if(ptpairs.size()>=8) {
-		CvMat* objPoint = cvCreateMat(ptpairs.size()/2,3,CV_64F);
-		CvMat* imgPoint = cvCreateMat(ptpairs.size()/2,2,CV_64F);
-		
-		for(int i = 0; i <ptpairs.size(); i += 2 )
-		{
-			CvSURFPoint* r1 = (CvSURFPoint*)cvGetSeqElem( objectKeypoints, ptpairs[i] );
-			CvSURFPoint* r2 = (CvSURFPoint*)cvGetSeqElem( imageKeypoints, ptpairs[i+1] );
-			
-			
-			objPoint->data.db[i/2*3] = ((2*(r1->pt.x/object->width))-1)*ratio; //Translate to centre
-			objPoint->data.db[i/2*3+1] = (2*(r1->pt.y/object->height))-1; //Translate to centre
-			objPoint->data.db[i/2*3+2] = 0;
-			imgPoint->data.db[i] = r2->pt.x + rect.x;
-			imgPoint->data.db[i+1] = r2->pt.y + rect.y;
-			
-			cvCircle(result,cvPoint(cvRound(r2->pt.x),cvRound(r2->pt.y)),
-				cvRound(r2->size*1.2/9.*2),cvScalar(255,255,255),1,8,0);
-			//printf("size1: %d\n",r1->size);
-			//printf("size2: %d\n",r2->size);
-		}
-		
-		//cvarFindCamera(cam,objPoint,imgPoint,modelview);
-		cvReleaseMat(&objPoint);
-		cvReleaseMat(&imgPoint);
-    }//*/
-
-    cvReleaseMemStorage(&imgStorage);
-
-}
-
