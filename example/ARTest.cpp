@@ -78,13 +78,11 @@ void display() {
 
     //Detect marker
     int ar_detect = cvarArMultRegistration(frame, &g_marker, g_vtpl, &g_cam,
-                                           AC_THRESH_AUTO, 0.94);
+                                           AC_THRESH_AUTO, 0.8);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
-    int test = 0;
-    double testmodel[16] = { 0 };
     for (int i = 0; i < ar_detect; i++) {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
@@ -100,60 +98,7 @@ void display() {
 
             //glGetFloatv(GL_PROJECTION_MATRIX,g_projection);
             //glGetFloatv(GL_MODELVIEW_MATRIX,g_modelview);
-        } else if (g_marker[i].tpl == 1) {
-            glLoadMatrixd(g_marker[i].modelview);
-            glRotatef(90, 1, 0, 0);
-            glTranslatef(0, 0.5, 0);
-            glutSolidCube(1);
-
-        } else if (g_marker[i].tpl == 2) {
-            glLoadMatrixd(g_marker[i].modelview);
-            //glRotatef(90,1,0,0);
-            glTranslatef(0, 0, 0.5);
-            glutSolidSphere(1, 8, 8);
-        } else if (g_marker[i].tpl == 3) {
-            glLoadMatrixd(g_marker[i].modelview);
-            //glRotatef(90,1,0,0);
-            glTranslatef(0, 0, 0.5);
-            glutSolidTorus(0.5, 1, 8, 12);
-            printf("%d:\n", g_marker[i].tpl);
-            for (int j = 0; j < 4; j++) {
-                for (int k = 0; k < 4; k++) {
-                    printf("%f\t", g_marker[i].modelview[j * 4 + k]);
-                }
-                printf("\n");
-            }
-            printf("\n");
-            test = 1;
-            memcpy(testmodel, g_marker[i].modelview, 16 * sizeof(double));
-
-        } else if (g_marker[i].tpl == 4) {
-            glLoadMatrixd(g_marker[i].modelview);
-            glTranslatef(0, 0, 0.5);
-            glutWireTorus(0.5, 1, 8, 12);
-            printf("%d:\n", g_marker[i].tpl);
-            for (int j = 0; j < 4; j++) {
-                for (int k = 0; k < 4; k++) {
-                    printf("%f\t", g_marker[i].modelview[j * 4 + k]);
-                }
-                printf("\n");
-            }
-            printf("\n");
-
-            //Generate another
-            if (test == 1) {
-                for (int j = 0; j < 4; j++) {
-                    for (int k = 0; k < 4; k++) {
-                        testmodel[j * 4 + k] +=
-                                g_marker[i].modelview[j * 4 + k];
-                        testmodel[j * 4 + k] /= 2;
-                    }
-                }
-            }
-            glLoadMatrixd(testmodel);
-            glTranslatef(0, 0, 0.5);
-            glutWireTorus(0.5, 1, 8, 12);
-        } //*/
+        }
 
         glDisable(GL_LIGHTING);
 
