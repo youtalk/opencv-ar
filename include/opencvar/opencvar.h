@@ -347,43 +347,6 @@ int cvarArMultRegistration(IplImage* img,vector<CvarMarker>* vMarker,vector<Cvar
 
 /** @} end functionList */
 
-/**
- * Haar object, which is used for face detection, etc
- */
-class AC_DLL CvarHaar {
-public:
-	CvarHaar();
-	/**
-	 * \brief Load the XML file
-	 */
-	CvarHaar(const char* filename);
-	virtual ~CvarHaar();
-	
-	/**
-	 * \brief Load the XML file
-	 */
-	void Load(const char* filename);
-	
-	
-	/**
-	 * \brief Clear storage memory
-	 */
-	void ClearMemory();
-	
-	/**
-	 * \brief Detect object, follow the functions cvHaarDetectObjects
-	 */
-	CvSeq* DetectObjects(IplImage* image,
-		double scale_factor = 1.1,
-		int min_neighbors=2,
-		int flags=0,
-		CvSize min_size=cvSize(30,30));
-	
-	CvSeq* object; /**< Detected object*/
-	CvHaarClassifierCascade* cascade;
-	
-	CvMemStorage* storage;
-};
 
 /*********
 Optical flow
@@ -392,25 +355,25 @@ class AC_DLL CvarOpticalFlow {
 public:
 	CvarOpticalFlow();
 	virtual ~CvarOpticalFlow();
-	
+
 	/**
 	 * \brief Initialise with the image size and number of points
 	 * \param nPoint	Number of points
 	 */
 	void Init(IplImage* img,int nPoint,CvPoint2D32f* pts);
-	
+
 	/**
 	 * \brief Destroy
 	 */
 	void Destroy();
-	
+
 	/**
 	 * \brief Update with the image and number of points
 	 * \param nPoint	Number of points
 	 * \param pts	[out] Points
 	 */
 	int Update(IplImage* img,int nPoint,CvPoint2D32f* pts,int draw = 0);
-	
+
 	IplImage *grey, *prevGrey, *pyramid, *prevPyramid, *swapTemp;
 	CvPoint2D32f *points[2], *swapPoints;
 	int flags;

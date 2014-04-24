@@ -364,43 +364,6 @@ void cvarFindCamera(CvarCamera* cam,CvMat* objPts,CvMat* imgPts,double* modelvie
 }
 
 
-/*******************
-Face detect
-*******************/
-CvarHaar::CvarHaar() {
-	storage = cvCreateMemStorage(0);
-	cascade = 0;
-	object = 0;
-}
-CvarHaar::CvarHaar(const char* filename) {
-	storage = cvCreateMemStorage(0);
-	object = 0;
-	cascade = 0;
-	Load(filename);
-}
-CvarHaar::~CvarHaar() {
-	cvReleaseMemStorage(&storage);
-	object = 0;
-	cascade = 0;
-}
-void CvarHaar::Load(const char* filename) {
-	cascade = (CvHaarClassifierCascade*)cvLoad(filename,0,0,0);
-}
-
-void CvarHaar::ClearMemory() {
-	cvClearMemStorage(storage);
-}
-
-CvSeq* CvarHaar::DetectObjects(IplImage* image,
-	double scale_factor,
-	int min_neighbors,
-	int flags,
-	CvSize min_size) {
-
-	object = cvHaarDetectObjects(image,cascade,storage,scale_factor,min_neighbors,flags,min_size);
-	return object;
-}
-
 /**************
 Optical flow
 *************/
@@ -412,37 +375,37 @@ CvarOpticalFlow::CvarOpticalFlow() {
 	points[0] = points[1] = 0;
 	flags = 0;
 	status = 0;
-	
+
 	m_bInit = 0;
 }
 
 CvarOpticalFlow::~CvarOpticalFlow() {
 	Destroy();
 }
-	
+
 /**
  * Initialise with the image size and number of points
  * \param nPoint	Number of points
  */
-void CvarOpticalFlow::Init(IplImage* img,int nPoint,CvPoint2D32f* pts) {		
+void CvarOpticalFlow::Init(IplImage* img,int nPoint,CvPoint2D32f* pts) {
 	if(!m_bInit) {
 		grey = cvCreateImage(cvGetSize(img),8,1);
 		prevGrey = cvCreateImage(cvGetSize(img),8,1);
 		pyramid = cvCreateImage(cvGetSize(img),8,1);
 		prevPyramid = cvCreateImage(cvGetSize(img),8,1);
-		
+
 		points[0] = (CvPoint2D32f*)cvAlloc(nPoint * sizeof(CvPoint2D32f));
 		points[1] = (CvPoint2D32f*)cvAlloc(nPoint * sizeof(CvPoint2D32f));
-		
+
 		status = (char*)cvAlloc(nPoint);
 		m_bInit = 1;
 	}
-	
+
 	for(int i=0;i<nPoint;i++)
 		points[1][i] = pts[i];
-	
+
 	cvCvtColor(img,grey,CV_BGR2GRAY);
-	
+
 	CV_SWAP(prevGrey,grey,swapTemp);
 	CV_SWAP(prevPyramid,pyramid,swapTemp);
 	CV_SWAP(points[0],points[1],swapPoints);
@@ -466,10 +429,10 @@ void CvarOpticalFlow::Destroy() {
 		cvFree(&points[1]);
 	if(status)
 		cvFree(&status);
-	
+
 	flags = 0;
 	status = 0;
-	
+
 	m_bInit = 0;
 }
 
@@ -484,16 +447,16 @@ int CvarOpticalFlow::Update(IplImage* img,int nPoint,CvPoint2D32f* pts,int draw)
 		points[0],points[1],nPoint,cvSize(10,10),3,status,0,
 		cvTermCriteria(CV_TERMCRIT_ITER|CV_TERMCRIT_EPS,20,0.03),flags);
 	flags |= CV_LKFLOW_PYR_A_READY;
-	
+
 	CV_SWAP(prevGrey,grey,swapTemp);
 	CV_SWAP(prevPyramid,pyramid,swapTemp);
 	CV_SWAP(points[0],points[1],swapPoints);
-	
+
 	//Copy to output
 	for(int i=0;i<nPoint;i++) {
 		pts[i] = points[0][i];
 	}
-	
+
 	//Calculate point
 	int res = 0;
 	for(int i=0;i<nPoint;i++) {
@@ -505,7 +468,7 @@ int CvarOpticalFlow::Update(IplImage* img,int nPoint,CvPoint2D32f* pts,int draw)
 			}
 		}
 	}
-	
+
 	return res;
 }
 
