@@ -26,16 +26,16 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************/
 
 /**
- * \file acgl.h
- * \brief Header acgl
+ * @file acgl.h
+ * @brief Header acgl
  *
  * Description: Several OpenGL functions, for easier use.
  * 20100226 Add acGlSelectd() because of OpenSceneGraph
- * \author    Allen
- * \date    20080904
- * \version    0.1.0
+ * @author    Allen
+ * @date    20080904
+ * @version    0.1.0
  *
- * \deprecated acGlSelect() 
+ * @deprecated acGlSelect()
  * Superceded by acGlSelect2()
  */
 
@@ -48,17 +48,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #endif
 
 /**
- * \defgroup functionGl acgl functions
+ * @defgroup functionGl acgl functions
  * @{
  */
 
 extern "C" {
 /**
- * \brief Create image texture mapping
+ * @brief Create image texture mapping
  *
  * For the video, with the ratio height : width = 1: width/height
- * \param depth    How many bytes per pixel
- * \param swap    1 for swapping RGB, 0 no swapping needed.
+ * @param depth    How many bytes per pixel
+ * @param swap    1 for swapping RGB, 0 no swapping needed.
  */
 AC_DLL void acGlTexture(unsigned char* data, int width, int height, int depth,
                         int swap = 0);
@@ -76,18 +76,18 @@ AC_DLL void acGlTextureProject(void* buffer, int width, int height, int depth,
                                int swap = 0);
 
 /**
- * \brief Selection/picking
+ * @brief Selection/picking
  *
  * For picking or selection, the projection and modelview are defined outside the
  * function, so that, it is able to be used in custom environment <br>
  * Note that, glLoadName() is needed in the draw() callback function so that the value
  * of the "name" will be returned.
- * \param x    Coordinate-x
- * \param y Coordinate-y
- * \param projection    OpenGL projection matrix
- * \param modelview    OpenGL modelview matrix
- * \param draw    Callback function to draw the selectable/pickable object
- * \return Return the "name" of the object, if no object selected, return 0.
+ * @param x    Coordinate-x
+ * @param y Coordinate-y
+ * @param projection    OpenGL projection matrix
+ * @param modelview    OpenGL modelview matrix
+ * @param draw    Callback function to draw the selectable/pickable object
+ * @return Return the "name" of the object, if no object selected, return 0.
  */
 AC_DLL int acGlSelect(int x, int y, float* projection, float* modelview,
                       void (*draw)());
@@ -130,15 +130,15 @@ AC_DLL void acGlPrintState();
 AC_DLL void acGlPrintGet(GLenum pname);
 
 /**
- * \brief Default process hit function
- * \return Front object
+ * @brief Default process hit function
+ * @return Front object
  */
 AC_DLL int acGlProcessHit(GLint hits, GLuint buffer[]);
 
 /**
- * \brief Select OpenGL matrix
- * \param processHit    Callback function
- * \return If nothing, return -1
+ * @brief Select OpenGL matrix
+ * @param processHit    Callback function
+ * @return If nothing, return -1
  */
 AC_DLL int acGlSelect2(
         int x, int y, int width, int height, float* projection,
@@ -146,11 +146,11 @@ AC_DLL int acGlSelect2(
         int (*processHit)(GLint hit, GLuint buffer[]) = acGlProcessHit);
 
 /**
- * \brief Select OpenGL matrix in double
- * \param processHit    Callback function
- * \param viewport    If want get self-defined viewport
- * \param inverse    Inverse the y-coordinate
- * \return If nothing, return -1
+ * @brief Select OpenGL matrix in double
+ * @param processHit    Callback function
+ * @param viewport    If want get self-defined viewport
+ * @param inverse    Inverse the y-coordinate
+ * @return If nothing, return -1
  */
 AC_DLL int acGlSelectd(
         int x, int y, int width, int height, double* projection,
@@ -159,8 +159,8 @@ AC_DLL int acGlSelectd(
         int (*processHit)(GLint hit, GLuint buffer[]) = acGlProcessHit);
 
 /**
- * \brief Check object (point) is occluded or not
- * \return 0 if no occlusion, else 1.
+ * @brief Check object (point) is occluded or not
+ * @return 0 if no occlusion, else 1.
  */
 AC_DLL int acGlIsOccluded(float objX, float objY, float objZ);
 
@@ -173,7 +173,7 @@ AC_DLL int acGlIsOccluded(float objX, float objY, float objZ);
  **************/
 
 /**
- * \brief WGL bitmap font
+ * @brief WGL bitmap font
  */
 class AC_DLL acWglFont {
 public:
@@ -181,7 +181,7 @@ public:
     virtual ~acWglFont();
 
     /**
-     * \brief Initialization
+     * @brief Initialization
      */
     void init(char* szWindow, char* szTypeface, int size = 12, int bold = 0,
               int italic = 0, int underline = 0, int strikeout = 0);

@@ -146,7 +146,7 @@ void cvarDummy() {
 
 /**
  * Convert to OpenGL Matrix
- * \param modelview    16 size
+ * @param modelview    16 size
  */
 void cvarGlMatrix(double* modelview, CvMat* rotate3, CvMat* translate) {
     memset(modelview, 0, 16 * sizeof(double));
@@ -303,7 +303,7 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
 
 /**
  * Initialise the points of square in 3D
- * \param mat    Must be 4*3 matrix with 64f (double)
+ * @param mat    Must be 4*3 matrix with 64f (double)
  */
 void cvarSquareInit(CvMat* mat, float ratio) {
     mat->data.db[0] = -ratio;
@@ -332,10 +332,10 @@ void cvarReverseSquare(CvPoint2D32f sq[4]) {
 
 /**
  * Find the camera based on the points
- * \param cam    The camera data, in order to get camera matrix and distortion
- * \param objPts    Matrix of object points in 3D, follow the function cvFindExtrinsicCameraParams2
- * \param imgPts    Matrix of image points in 2D, same as above
- * \param modelview    [Out] The model view of OpenGL matrix,
+ * @param cam    The camera data, in order to get camera matrix and distortion
+ * @param objPts    Matrix of object points in 3D, follow the function cvFindExtrinsicCameraParams2
+ * @param imgPts    Matrix of image points in 2D, same as above
+ * @param modelview    [Out] The model view of OpenGL matrix,
  */
 void cvarFindCamera(CvarCamera* cam, CvMat* objPts, CvMat* imgPts,
                     double* modelview) {
@@ -378,7 +378,7 @@ CvarOpticalFlow::~CvarOpticalFlow() {
 
 /**
  * Initialise with the image size and number of points
- * \param nPoint    Number of points
+ * @param nPoint    Number of points
  */
 void CvarOpticalFlow::Init(IplImage* img, int nPoint, CvPoint2D32f* pts) {
     if (!m_bInit) {
@@ -431,8 +431,8 @@ void CvarOpticalFlow::Destroy() {
 
 /**
  * Update with the image and number of points
- * \param nPoint    Number of points
- * \param pts    [out] Points
+ * @param nPoint    Number of points
+ * @param pts    [out] Points
  */
 int CvarOpticalFlow::Update(IplImage* img, int nPoint, CvPoint2D32f* pts,
                             int draw) {
@@ -475,7 +475,7 @@ int CvarOpticalFlow::Update(IplImage* img, int nPoint, CvPoint2D32f* pts,
 
 /**
  * Load the template
- * \param tpl [out]    The struct store the template
+ * @param tpl [out]    The struct store the template
  */
 int cvarLoadTemplate(CvarTemplate* tpl, const char* filename, int type) {
     IplImage* file = cvLoadImage(filename, CV_LOAD_IMAGE_GRAYSCALE);
@@ -564,7 +564,7 @@ void cvarThresholdTemplate(CvarTemplate* tpl, int threshold) {
 
 /**
  * Compare the square with the four points of the optical flow
- * \param points [in]    Four points from optical flow
+ * @param points [in]    Four points from optical flow
  */
 int cvarCompareSquare(IplImage* img, CvPoint2D32f* points) {
     CvMemStorage* storage = cvCreateMemStorage();
@@ -699,8 +699,8 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
 
 /**
  * Create square value, no need release
- * \param src    The array
- * \param ccw    Counter clockwise of the point
+ * @param src    The array
+ * @param ccw    Counter clockwise of the point
  */
 void cvarSquare(CvPoint2D32f* src, int width, int height, int ccw) {
     //Reverse order is correct way
@@ -727,7 +727,7 @@ void cvarSquare(CvPoint2D32f* src, int width, int height, int ccw) {
 
 /**
  * Rotate square
- * \param rot    The rotation. 1 - 0 degree, 2 - 90 degree ccw, 3 - 180 degree, 4 - 270 degree ccw
+ * @param rot    The rotation. 1 - 0 degree, 2 - 90 degree ccw, 3 - 180 degree, 4 - 270 degree ccw
  */
 void cvarRotSquare(CvPoint2D32f* src, int rot) {
     CvPoint2D32f temp[4];
@@ -770,10 +770,10 @@ void cvarRotSquare(CvPoint2D32f* src, int rot) {
 
 /**
  * Invert perspective view of the image to the 2D view
- * \param input    Input image, the whole image
- * \param output    Output image.
- * \param src    Source 4 points, correspond to input
- * \param dst    Destination 4 points, correspond to output
+ * @param input    Input image, the whole image
+ * @param output    Output image.
+ * @param src    Source 4 points, correspond to input
+ * @param dst    Destination 4 points, correspond to output
  */
 void cvarInvertPerspective(IplImage* input, IplImage* output, CvPoint2D32f* src,
                            CvPoint2D32f* dst) {
@@ -827,9 +827,9 @@ int cvarGetOrientation(IplImage* input, CvarTemplate tpl, double* match,
 
 /**
  * From the points of the square to OpenGL model view matrix
- * \param points    Points of the square
- * \param cam    Camera
- * \param modelview [out]    Model view matrix
+ * @param points    Points of the square
+ * @param cam    Camera
+ * @param modelview [out]    Model view matrix
  */
 void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
                         double* modelview, float ratio) {
@@ -851,9 +851,9 @@ void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
 
 /**
  * Calculate the model view matrix from square of the image.
- * \param img    Image
- * \param points [out]    4 points of the square in array
- * \return 1 if found, else 0
+ * @param img    Image
+ * @param points [out]    4 points of the square in array
+ * @return 1 if found, else 0
  */
 int cvarArRegistration(IplImage* img, CvPoint2D32f* points, CvarTemplate tpl,
                        int thresh, double matchThresh) {
@@ -1025,7 +1025,7 @@ void CvarAr::DetectMarkerLight(unsigned char* imageData, int width, int height,
 
 /**
  * Get the detected state
- * \return    0 if no marker detected, else 1.
+ * @return    0 if no marker detected, else 1.
  */
 int CvarAr::GetState() {
     return state;

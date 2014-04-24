@@ -26,14 +26,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************/
 
 /**
- * \file acmath.h
- * \brief Math module
+ * @file acmath.h
+ * @brief Math module
  *
  * These are the old functions that I used. The primary purpose is for 3D computer graphic,
  * thus, the vector is 3, matrix is 4x4, and also based on OpenGL, column-major matrix.
- * \author Allen
- * \date 20090507
- * \todo Decompose the transformation matrix.
+ * @author Allen
+ * @date 20090507
+ * @todo Decompose the transformation matrix.
  * Add in 3x3 matrix inversion, 2x2.
  */
 
@@ -65,7 +65,7 @@ struct AcPointf {
 extern "C" {
 
 /**
- * \defgroup mathFunc    Math module
+ * @defgroup mathFunc    Math module
  *
  * Related to math
  * @{
@@ -124,7 +124,7 @@ AC_DLL void acMatrixTransposed(double* m);
 
 /**
  * The algorithm come from http://www.j3d.org/matrix_faq/matrfaq_latest.html
- * \param q Quaternion with w,x,y,z
+ * @param q Quaternion with w,x,y,z
  */
 AC_DLL void acMatrixToQuaternion(double* m, double* q);
 
@@ -145,27 +145,27 @@ AC_DLL double acAngle(AcPointi* pt1, AcPointi* pt2, AcPointi* pt0);
 AC_DLL double acCalcLength(AcPointf pt1, AcPointf pt2);
 
 /**
- * \brief Invert modelview matrix 4x4
+ * @brief Invert modelview matrix 4x4
  *
  * From http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
  */
 AC_DLL void acMatrix4Invert(float m[]);
 
 /**
- * \brief Get determinant of 4x4 matrix
+ * @brief Get determinant of 4x4 matrix
  *
  ** From http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
  */
 AC_DLL float acMatrix4GetDeterminant(float m[]);
 
 /**
- * \brief decompose the 4x4 matrix
+ * @brief decompose the 4x4 matrix
  *
  * Algorithm from http://www.gamedev.net/community/forums/topic.asp?topic_id=441695
- * \param m    [in] 4x4 row-majored transformation matrix
- * \param t    [out]    Translation 3x1 vector
- * \param s    [out] Scale 3x1 vector
- * \param r    [out] Rotation 4x4 matrix
+ * @param m    [in] 4x4 row-majored transformation matrix
+ * @param t    [out]    Translation 3x1 vector
+ * @param s    [out] Scale 3x1 vector
+ * @param r    [out] Rotation 4x4 matrix
  */
 AC_DLL void acMatrixDecompose(float m[], float t[], float s[], float r[]);
 
@@ -174,18 +174,18 @@ AC_DLL void acMatrixDecompose(float m[], float t[], float s[], float r[]);
  ***********/
 
 /**
- * \brief Rotate square array in unsigned byte
- * \param rot 1 = 90 deg clockwise, 2 = 180 deg clockwise, 3 = 270 deg clockwise
+ * @brief Rotate square array in unsigned byte
+ * @param rot 1 = 90 deg clockwise, 2 = 180 deg clockwise, 3 = 270 deg clockwise
  */
 AC_DLL void acArray2DRotateub(unsigned char* arr, int w, int h, int rot);
 
 /**
- * \brief Print array 2D
+ * @brief Print array 2D
  */
 AC_DLL void acArray2DPrintub(unsigned char* arr, int w, int h);
 
 /**
- * \brief Convert array 2D to bit
+ * @brief Convert array 2D to bit
  *
  * The array data must be binary. The bit data is like the following feature <br>
  * Array sequence:
@@ -203,23 +203,23 @@ AC_DLL void acArray2DPrintub(unsigned char* arr, int w, int h);
  * If read the hex from left to right, then, the image should be read from right to left yet bottom-up, and vice versa. <br>
  * Thus, if a person want to convert the image code to hex manually, write the hex from left to right, then he/she need to read
  * the image from right to left and bottom-up.
- * \param bit    Store the output, the size of bit must be
+ * @param bit    Store the output, the size of bit must be
  * large enough to hold the data, such as "long long" for 8-byte (or 64bit)
  */
 AC_DLL void acArray2DToBit(unsigned char* arr, int w, int h,
                            long long int* bit);
 
 /**
- * \brief Convert bit to 2D array
+ * @brief Convert bit to 2D array
  */
 AC_DLL void acBitToArray2D(long long int bit, unsigned char* arr, int w, int h);
 
 /**
- * \brief Rotate bit
+ * @brief Rotate bit
  *
  * Convert the bit to 2D square array, then rotate, then convert to bit again
  * Expected size of bit is 64-bit.
- * \param rot 1=90 degree clockwise, 2=180, 3=270
+ * @param rot 1=90 degree clockwise, 2=180, 3=270
  */
 AC_DLL void acBitRotate(long long int* bit, int rot);
 

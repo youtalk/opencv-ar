@@ -563,8 +563,8 @@ int acGlSelectd(int x, int y, int width, int height, double* projection,
 }
 
 /**
- * \brief Check object (point) is occluded or not
- * \return 0 if no occlusion, else 1.
+ * @brief Check object (point) is occluded or not
+ * @return 0 if no occlusion, else 1.
  */
 int acGlIsOccluded(float objX, float objY, float objZ) {
     GLdouble modelview[16];
