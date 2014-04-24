@@ -50,31 +50,31 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * it is also possible to use my own strucutre
  */
 struct AcPointi {
-	int x;
-	int y;
+    int x;
+    int y;
 };
 
 /**
  * Same as above
  */
 struct AcPointf {
-	float x;
-	float y;
+    float x;
+    float y;
 };
 
 extern "C" {
 
 /**
- * \defgroup mathFunc	Math module
+ * \defgroup mathFunc    Math module
  *
  * Related to math
  * @{
  */
-	
+
 AC_DLL void acVectorPrint(float *v);
-AC_DLL void acVectorAdd(float *v1,float *v2,float *vOut);
-AC_DLL void acVectorDeduct(float *v1,float *v2,float *vOut);
-AC_DLL void acVectorCrossProduct(float *v1,float *v2,float *product);
+AC_DLL void acVectorAdd(float *v1, float *v2, float *vOut);
+AC_DLL void acVectorDeduct(float *v1, float *v2, float *vOut);
+AC_DLL void acVectorCrossProduct(float *v1, float *v2, float *product);
 
 /**
  * Description:
@@ -82,14 +82,14 @@ AC_DLL void acVectorCrossProduct(float *v1,float *v2,float *product);
  * They are input value.
  * "normal" will be the output value. It must be a vector with x,y,z also
  */
-AC_DLL void acVectorNormal(float *v1,float *v2,float *v3,float *normal);
+AC_DLL void acVectorNormal(float *v1, float *v2, float *v3, float *normal);
 AC_DLL float acVectorMagnitude(float *v);
-AC_DLL void acVectorNormalise(float *vIn,float *vOut);
+AC_DLL void acVectorNormalise(float *vIn, float *vOut);
 
 /**
  * Get the normalised normal
  */
-AC_DLL void acVectorNormal2(float *v1,float *v2,float *v3,float *nv);
+AC_DLL void acVectorNormal2(float *v1, float *v2, float *v3, float *nv);
 
 AC_DLL float acRad2Deg(float rad);
 AC_DLL float acDeg2Rad(float deg);
@@ -98,22 +98,22 @@ AC_DLL float acDeg2Rad(float deg);
  * This coding is according to the calculation of OpenGL, therefore the output matrix is also 
  * according to OpenGL matrix
  */
-AC_DLL void acMatrixRotate(float deg,float x,float y,float z,float *m);
-AC_DLL void acMatrixTranslate(float x,float y,float z,float *m);
-AC_DLL void acMatrixScale(float x,float y,float z,float *m);
+AC_DLL void acMatrixRotate(float deg, float x, float y, float z, float *m);
+AC_DLL void acMatrixTranslate(float x, float y, float z, float *m);
+AC_DLL void acMatrixScale(float x, float y, float z, float *m);
 AC_DLL void acMatrixIdentity(float *m);
 
 /**
  * Dot product base on row-majored matrix
  * Therefore, m1 and m2 should be row-majored matrix
  */
-AC_DLL float acMatrixDotProduct(float *m1,float *m2,int col,int row);
+AC_DLL float acMatrixDotProduct(float *m1, float *m2, int col, int row);
 
 /**
  * Based on row-majored matrix
  * m1, m2 and mOut should be row-majored
  */
-AC_DLL void acMatrixMultiply(float *m1,float *m2,float *mOut);
+AC_DLL void acMatrixMultiply(float *m1, float *m2, float *mOut);
 AC_DLL void acMatrixPrint(float *m);
 AC_DLL void acMatrixTranspose(float *m);
 
@@ -126,23 +126,23 @@ AC_DLL void acMatrixTransposed(double* m);
  * The algorithm come from http://www.j3d.org/matrix_faq/matrfaq_latest.html
  * \param q Quaternion with w,x,y,z
  */
-AC_DLL void acMatrixToQuaternion(double* m,double* q);
+AC_DLL void acMatrixToQuaternion(double* m, double* q);
 
 /**
  * Convert quaternion to matrix in 4x4, the data of the matrix will be
  * overwritten.
  */
-AC_DLL void acQuaternionToMatrix(double* q,double* m);
+AC_DLL void acQuaternionToMatrix(double* q, double* m);
 
 /**
  * This algorithm is from OpenCV square example
  */
-AC_DLL double acAngle( AcPointi* pt1, AcPointi* pt2, AcPointi* pt0 );
+AC_DLL double acAngle(AcPointi* pt1, AcPointi* pt2, AcPointi* pt0);
 
 /**
  * Calculate length between two vertices
  */
-AC_DLL double acCalcLength(AcPointf pt1,AcPointf pt2);
+AC_DLL double acCalcLength(AcPointf pt1, AcPointf pt2);
 
 /**
  * \brief Invert modelview matrix 4x4
@@ -162,29 +162,27 @@ AC_DLL float acMatrix4GetDeterminant(float m[]);
  * \brief decompose the 4x4 matrix
  *
  * Algorithm from http://www.gamedev.net/community/forums/topic.asp?topic_id=441695
- * \param m	[in] 4x4 row-majored transformation matrix
- * \param t	[out]	Translation 3x1 vector
- * \param s	[out] Scale 3x1 vector
- * \param r	[out] Rotation 4x4 matrix
+ * \param m    [in] 4x4 row-majored transformation matrix
+ * \param t    [out]    Translation 3x1 vector
+ * \param s    [out] Scale 3x1 vector
+ * \param r    [out] Rotation 4x4 matrix
  */
-AC_DLL void acMatrixDecompose(float m[],float t[],float s[],float r[]);
-
-
+AC_DLL void acMatrixDecompose(float m[], float t[], float s[], float r[]);
 
 /************
-Bit operation and 2D square array, related to image processing
-***********/
+ Bit operation and 2D square array, related to image processing
+ ***********/
 
 /**
  * \brief Rotate square array in unsigned byte
  * \param rot 1 = 90 deg clockwise, 2 = 180 deg clockwise, 3 = 270 deg clockwise
  */
-AC_DLL void acArray2DRotateub(unsigned char* arr,int w,int h,int rot);
+AC_DLL void acArray2DRotateub(unsigned char* arr, int w, int h, int rot);
 
 /**
  * \brief Print array 2D
  */
-AC_DLL void acArray2DPrintub(unsigned char* arr,int w,int h);
+AC_DLL void acArray2DPrintub(unsigned char* arr, int w, int h);
 
 /**
  * \brief Convert array 2D to bit
@@ -205,15 +203,16 @@ AC_DLL void acArray2DPrintub(unsigned char* arr,int w,int h);
  * If read the hex from left to right, then, the image should be read from right to left yet bottom-up, and vice versa. <br>
  * Thus, if a person want to convert the image code to hex manually, write the hex from left to right, then he/she need to read
  * the image from right to left and bottom-up.
- * \param bit	Store the output, the size of bit must be 
+ * \param bit    Store the output, the size of bit must be
  * large enough to hold the data, such as "long long" for 8-byte (or 64bit)
  */
-AC_DLL void acArray2DToBit(unsigned char* arr,int w,int h,long long int* bit);
+AC_DLL void acArray2DToBit(unsigned char* arr, int w, int h,
+                           long long int* bit);
 
 /**
  * \brief Convert bit to 2D array
  */
-AC_DLL void acBitToArray2D(long long int bit,unsigned char* arr,int w,int h);
+AC_DLL void acBitToArray2D(long long int bit, unsigned char* arr, int w, int h);
 
 /**
  * \brief Rotate bit
@@ -222,10 +221,8 @@ AC_DLL void acBitToArray2D(long long int bit,unsigned char* arr,int w,int h);
  * Expected size of bit is 64-bit.
  * \param rot 1=90 degree clockwise, 2=180, 3=270
  */
-AC_DLL void acBitRotate(long long int* bit,int rot);
+AC_DLL void acBitRotate(long long int* bit, int rot);
 
-
-	
 /** @} end mathFunc */
 
 } //extern
