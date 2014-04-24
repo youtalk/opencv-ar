@@ -70,7 +70,7 @@ struct CvarCamera {
 struct CvarTemplate {
     IplImage *image[4];
     int type; /**< 0 = ARToolKit (the pattern only), 1 = Whole image (with border), 2= ARTag */
-    long long int code[4]; //For ARTag
+    long long int code[4]; // For ARTag
 };
 
 /**
@@ -336,7 +336,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                            vector<CvarTemplate> vTpl, CvarCamera* cam,
                            int thresh, double matchThresh);
 
-} //extern
+} // extern
 
 /** @} end functionList */
 

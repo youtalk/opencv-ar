@@ -62,9 +62,9 @@ void acVectorCrossProduct(float *v1, float *v2, float *product) {
 }
 
 void acVectorNormal(float *v1, float *v2, float *v3, float *normal) {
-    //Description:
-    //v1, v2, and v3, should be vertices, with x,y,z for each vertex.
-    //They are input value.
+    // Description:
+    // v1, v2, and v3, should be vertices, with x,y,z for each vertex.
+    // They are input value.
     //"normal" will be the output value. It must be a vector with x,y,z also
 
     float temp[3], temp2[3];
@@ -98,14 +98,14 @@ float acDeg2Rad(float deg) {
 }
 
 void acMatrixRotate(float deg, float x, float y, float z, float *m) {
-    //This coding is according to the calculation of OpenGL, therefore the output matrix is also
+    // This coding is according to the calculation of OpenGL, therefore the output matrix is also
     // according to OpenGL matrix
 
     float temp[16];
     float c = cos(acDeg2Rad(deg));
     float s = sin(acDeg2Rad(deg));
 
-    //Normalise the x,y,z
+    // Normalise the x,y,z
     float mag = sqrt(x * x + y * y + z * z);
     x = x / mag;
     y = y / mag;
@@ -151,7 +151,7 @@ void acMatrixTranslate(float x, float y, float z, float *m) {
     temp[11] = 0;
     temp[15] = 1;
 
-    acMatrixMultiply(temp, m, m); //Because of the multiplication is using row-majored
+    acMatrixMultiply(temp, m, m); // Because of the multiplication is using row-majored
 }
 
 void acMatrixScale(float x, float y, float z, float *m) {
@@ -188,8 +188,8 @@ void acMatrixIdentity(float *m) {
 }
 
 float acMatrixDotProduct(float *m1, float *m2, int col, int row) {
-    //Dot product base on row-majored matrix
-    //Therefore, m1 and m2 should be row-majored matrix
+    // Dot product base on row-majored matrix
+    // Therefore, m1 and m2 should be row-majored matrix
 
     float ret = 0;
     for (int i = 0; i < 4; i++) {
@@ -199,10 +199,10 @@ float acMatrixDotProduct(float *m1, float *m2, int col, int row) {
 }
 
 void acMatrixMultiply(float *m1, float *m2, float *mOut) {
-    //Based on row-majored matrix
-    //m1, m2 and mOut should be row-majored
-    float temp[16]; //Must use the temporary, because if the address of mOut is same
-    //as m1 or m2, the DotProduct value will be altered.
+    // Based on row-majored matrix
+    // m1, m2 and mOut should be row-majored
+    float temp[16]; // Must use the temporary, because if the address of mOut is same
+    // as m1 or m2, the DotProduct value will be altered.
     for (int j = 0; j < 4; j++) {
         for (int i = 0; i < 4; i++) {
             temp[j * 4 + i] = acMatrixDotProduct(m1, m2, i, j);
@@ -252,7 +252,7 @@ void acMatrixToQuaternion(double* m, double* q) {
     double t = 1 + m[0] + m[5] + m[10];
     if (t > 0.00000001) {
         s = sqrt(t) * 2;
-        x = (m[9] - m[6]) / s; //Because of OpenGL uses column-major matrix, mat[6]-mat[9] is used
+        x = (m[9] - m[6]) / s; // Because of OpenGL uses column-major matrix, mat[6]-mat[9] is used
         y = (m[2] - m[8]) / s;
         z = (m[4] - m[1]) / s;
         w = 0.25 * s;
@@ -486,12 +486,12 @@ void acMatrix4Invert(float m[]) {
  * @param r    [out] Rotation 4x4 matrix
  */
 void acMatrixDecompose(float m[], float t[], float s[], float r[]) {
-    //Translation
+    // Translation
     t[0] = m[0 * 4 + 3];
     t[1] = m[1 * 4 + 3];
     t[2] = m[2 * 4 + 3];
 
-    //Scale
+    // Scale
     s[0] = sqrt(
             pow(m[0 * 4 + 0], 2) + pow(m[0 * 4 + 1], 2) + pow(m[0 * 4 + 2], 2));
     s[1] = sqrt(
@@ -499,7 +499,7 @@ void acMatrixDecompose(float m[], float t[], float s[], float r[]) {
     s[2] = sqrt(
             pow(m[2 * 4 + 0], 2) + pow(m[2 * 4 + 1], 2) + pow(m[2 * 4 + 2], 2));
 
-    //Rotation
+    // Rotation
     float rot[16] = { m[0 * 4 + 0] / s[0], m[0 * 4 + 1] / s[0], m[0 * 4 + 2]
                                                                 / s[0],
                       0, m[1 * 4 + 0] / s[1], m[1 * 4 + 1] / s[1], m[1 * 4 + 2]

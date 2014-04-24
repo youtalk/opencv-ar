@@ -108,7 +108,7 @@ AC_DLL float acGlPixelRasterRatioY();
  * This is because, the pixels will be influenced by the 3D transformation.
  * Note: These functions should not be used after glRasterPos(), cause it will reset the state
  */
-AC_DLL float acGlPixel2RasterX(float input); //For raster, convert the value of glGet() to glRasterPos()
+AC_DLL float acGlPixel2RasterX(float input); // For raster, convert the value of glGet() to glRasterPos()
 AC_DLL float acGlRaster2PixelX(float input);
 AC_DLL float acGlPixel2RasterY(float input);
 AC_DLL float acGlRaster2PixelY(float input);
@@ -164,7 +164,7 @@ AC_DLL int acGlSelectd(
  */
 AC_DLL int acGlIsOccluded(float objX, float objY, float objZ);
 
-} //extern
+} // extern
 
 /** @} end group */
 

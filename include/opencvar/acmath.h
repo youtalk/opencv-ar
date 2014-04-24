@@ -225,4 +225,4 @@ AC_DLL void acBitRotate(long long int* bit, int rot);
 
 /** @} end mathFunc */
 
-} //extern
+} // extern

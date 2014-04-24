@@ -97,12 +97,12 @@ void acGlTexture(unsigned char* data, int width, int height, int depth,
     glDeleteTextures(1, texid);
 }
 
-/////////Older GL functions
+///////// Older GL functions
 
 void acGlGetWindowSize(int* width, int* height) {
     glPushMatrix();
     glLoadIdentity();
-    glRasterPos2f(0, 0); //In the middle
+    glRasterPos2f(0, 0); // In the middle
 
     int rasterPos[4];
     glGetIntegerv(GL_CURRENT_RASTER_POSITION, rasterPos);
@@ -144,7 +144,7 @@ float acGlPixelRasterRatioY() {
 float acGlPixel2RasterX(float input) {
     float ratio = acGlPixelRasterRatioX();
 
-    //Get the middle
+    // Get the middle
     glRasterPos2f(0, 0);
     float raster[4];
     glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
@@ -164,7 +164,7 @@ float acGlRaster2PixelX(float input) {
 float acGlPixel2RasterY(float input) {
     float ratio = acGlPixelRasterRatioY();
 
-    //Get the middle
+    // Get the middle
     glRasterPos2f(0, 0);
     float raster[4];
     glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
@@ -182,7 +182,7 @@ float acGlRaster2PixelY(float input) {
 }
 
 void acGlutFontBitmap(char* str) {
-    //Note: Bitmap cannot be rotated
+    // Note: Bitmap cannot be rotated
 
     if (str && strlen(str)) {
         while (*str) {
@@ -193,9 +193,9 @@ void acGlutFontBitmap(char* str) {
 }
 
 void acGlutFontStroke(char* str) {
-    //Note: Stroke can be rotated.
+    // Note: Stroke can be rotated.
 
-    glScalef(0.002, 0.002, 0.002); //Need to scale it to very small
+    glScalef(0.002, 0.002, 0.002); // Need to scale it to very small
     if (str && strlen(str)) {
         while (*str) {
             glutStrokeCharacter(GLUT_STROKE_ROMAN, *str);
@@ -269,24 +269,24 @@ void acGlPrintGet(GLenum pname) {
     }
 }
 
-//For picking or selection, the projection and modelview are defined outside the
+// For picking or selection, the projection and modelview are defined outside the
 // function, so that, it is able to be used in custom environment
 int acGlSelect(int x, int y, float* projection, float* modelview,
                void (*draw)()) {
-    GLuint buffer[512] = { 0 }; //For selection, initialise
+    GLuint buffer[512] = { 0 }; // For selection, initialise
     glSelectBuffer(512, buffer);
 
-    //Change the GL_RENDER mode to GL_SELECT, therefore, the projection need to be
+    // Change the GL_RENDER mode to GL_SELECT, therefore, the projection need to be
     // set to the same as the GL_RENDER
     (void) glRenderMode(GL_SELECT);
 
-    //From NeHe lesson 32
+    // From NeHe lesson 32
     glInitNames();
-    glPushName(0); //This only works in GL_SELECT mode, this statement must exist
+    glPushName(0); // This only works in GL_SELECT mode, this statement must exist
 
     //{ Matrix setting for GL_PROJECTION
     glMatrixMode(GL_PROJECTION);
-    glPushMatrix(); //Must push matrix, so that the setting will not affect the display
+    glPushMatrix(); // Must push matrix, so that the setting will not affect the display
     glLoadIdentity();
 
     GLint viewport[4];
@@ -296,7 +296,7 @@ int acGlSelect(int x, int y, float* projection, float* modelview,
 
     glMultMatrixf(projection);
 
-    //This part is draw the object which can be selected. However, this
+    // This part is draw the object which can be selected. However, this
     // draw will only draw in memory, not displayed, therefore, the
     // display looping must draw the same object so that the user can see them
     glMatrixMode(GL_MODELVIEW);
@@ -304,25 +304,25 @@ int acGlSelect(int x, int y, float* projection, float* modelview,
     glLoadIdentity();
     glMultMatrixf(modelview);
 
-    //this->DrawTree();
+    // this->DrawTree();
     draw();
 
     glPopMatrix();
 
-    //This is only want to pop the projection matrix
+    // This is only want to pop the projection matrix
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     //}end projection
 
-    //Change back to MODELVIEW
+    // Change back to MODELVIEW
     glMatrixMode(GL_MODELVIEW);
 
     GLint hits;
-    hits = glRenderMode(GL_RENDER); //Return the hits of GL_SELECT mode
+    hits = glRenderMode(GL_RENDER); // Return the hits of GL_SELECT mode
 
-    //Loop through the buffer using ptr, because the number of names in the stack
+    // Loop through the buffer using ptr, because the number of names in the stack
     // will cause the different number of names occured
-    GLuint nNames, *ptr; //Number of names and ptr
+    GLuint nNames, *ptr; // Number of names and ptr
     ptr = buffer;
 
     int choose = buffer[3]; // This is to store which object is selected
@@ -330,10 +330,10 @@ int acGlSelect(int x, int y, float* projection, float* modelview,
 
     if (hits > 0) {
 
-        //cout<<"Number of hit: "<<hits<<endl;
+        // cout<<"Number of hit: "<<hits<<endl;
         for (int i = 0; i < hits; i++) {
-            if (buffer[i * 4 + 1] < GLuint(depth)) { //Select the front object
-            //But in gluPerspective(), the z is almost same
+            if (buffer[i * 4 + 1] < GLuint(depth)) { // Select the front object
+            // But in gluPerspective(), the z is almost same
                 choose = buffer[i * 4 + 3];
                 depth = buffer[i * 4 + 1];
             }
@@ -405,7 +405,7 @@ void acGlTextureProject(void* buffer, int width, int height, int depth,
 
 int acGlProcessHit(GLint hits, GLuint buffer[]) {
     int choose = -1;
-    GLuint nNames, *ptr; //Number of names and ptr
+    GLuint nNames, *ptr; // Number of names and ptr
     ptr = buffer;
 
     if (hits > 0) {
@@ -433,22 +433,22 @@ int acGlProcessHit(GLint hits, GLuint buffer[]) {
 int acGlSelect2(int x, int y, int width, int height, float* projection,
                 float* modelview, void (*draw)(),
                 int (*processHit)(GLint hit, GLuint buffer[])) {
-    GLuint buffer[512] = { 0 }; //For selection, initialise
+    GLuint buffer[512] = { 0 }; // For selection, initialise
     glSelectBuffer(512, buffer);
 
     glDepthRange(0, 0.5);
 
-    //Change the GL_RENDER mode to GL_SELECT, therefore, the projection need to be
+    // Change the GL_RENDER mode to GL_SELECT, therefore, the projection need to be
     // set to the same as the GL_RENDER
     glRenderMode(GL_SELECT);
 
-    //From NeHe lesson 32
+    // From NeHe lesson 32
     glInitNames();
-    glPushName(0); //This only works in GL_SELECT mode, this statement must exist
+    glPushName(0); // This only works in GL_SELECT mode, this statement must exist
 
-    //Matrix setting for GL_PROJECTION
+    // Matrix setting for GL_PROJECTION
     glMatrixMode(GL_PROJECTION);
-    glPushMatrix(); //Must push matrix, so that the setting will not affect the display
+    glPushMatrix(); // Must push matrix, so that the setting will not affect the display
     glLoadIdentity();
 
     GLint viewport[4];
@@ -459,27 +459,27 @@ int acGlSelect2(int x, int y, int width, int height, float* projection,
 
     glMultMatrixf(projection);
 
-    //This part is draw the object which can be selected. However, this
+    // This part is draw the object which can be selected. However, this
     // draw will only draw in memory, not displayed, therefore, the
     // display looping must draw the same object so that the user can see them
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadMatrixf(modelview);
 
-    //Callback
+    // Callback
     draw();
 
     glPopMatrix();
 
-    //This is only want to pop the projection matrix
+    // This is only want to pop the projection matrix
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
-    //Change back to MODELVIEW
+    // Change back to MODELVIEW
     glMatrixMode(GL_MODELVIEW);
 
     GLint hits;
-    hits = glRenderMode(GL_RENDER); //Return the hits of GL_SELECT mode
+    hits = glRenderMode(GL_RENDER); // Return the hits of GL_SELECT mode
 
     int choose = processHit(hits, buffer);
 
@@ -490,22 +490,22 @@ int acGlSelect2(int x, int y, int width, int height, float* projection,
 int acGlSelectd(int x, int y, int width, int height, double* projection,
                 double* modelview, void (*draw)(), GLint viewport[4],
                 int inverse, int (*processHit)(GLint hit, GLuint buffer[])) {
-    GLuint buffer[512] = { 0 }; //For selection, initialise
+    GLuint buffer[512] = { 0 }; // For selection, initialise
     glSelectBuffer(512, buffer);
 
     glDepthRange(0, 0.5);
 
-    //Change the GL_RENDER mode to GL_SELECT, therefore, the projection need to be
+    // Change the GL_RENDER mode to GL_SELECT, therefore, the projection need to be
     // set to the same as the GL_RENDER
     glRenderMode(GL_SELECT);
 
-    //From NeHe lesson 32
+    // From NeHe lesson 32
     glInitNames();
-    glPushName(0); //This only works in GL_SELECT mode, this statement must exist
+    glPushName(0); // This only works in GL_SELECT mode, this statement must exist
 
-    //Matrix setting for GL_PROJECTION
+    // Matrix setting for GL_PROJECTION
     glMatrixMode(GL_PROJECTION);
-    glPushMatrix(); //Must push matrix, so that the setting will not affect the display
+    glPushMatrix(); // Must push matrix, so that the setting will not affect the display
     glLoadIdentity();
 
     if (!viewport)
@@ -519,27 +519,27 @@ int acGlSelectd(int x, int y, int width, int height, double* projection,
 
     glMultMatrixd(projection);
 
-    //This part is draw the object which can be selected. However, this
+    // This part is draw the object which can be selected. However, this
     // draw will only draw in memory, not displayed, therefore, the
     // display looping must draw the same object so that the user can see them
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadMatrixd(modelview);
 
-    //Callback
+    // Callback
     draw();
 
     glPopMatrix();
 
-    //This is only want to pop the projection matrix
+    // This is only want to pop the projection matrix
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
-    //Change back to MODELVIEW
+    // Change back to MODELVIEW
     glMatrixMode(GL_MODELVIEW);
 
     GLint hits;
-    hits = glRenderMode(GL_RENDER); //Return the hits of GL_SELECT mode
+    hits = glRenderMode(GL_RENDER); // Return the hits of GL_SELECT mode
 
     int choose = processHit(hits, buffer);
 
@@ -569,7 +569,7 @@ int acGlIsOccluded(float objX, float objY, float objZ) {
     glReadPixels(win[0], win[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &buffer);
 
     if (buffer < win[2])
-        return 1; //Occluded
+        return 1; // Occluded
 
     return 0;
 }

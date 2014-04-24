@@ -38,12 +38,12 @@ using namespace std;
 
 int AC_CV_DEBUG = 0;
 
-static int g_thresh = -1; //For storing auto threshold value
-static int g_needRandom = 1; //For checking need randomise the threshold or not
-static int g_isRandom = 0; //Check randomise performed or not
+static int g_thresh = -1; // For storing auto threshold value
+static int g_needRandom = 1; // For checking need randomise the threshold or not
+static int g_isRandom = 0; // Check randomise performed or not
 
 int cvarReadCamera(const char* filename, CvarCamera* pCam) {
-    //Use default value
+    // Use default value
     if (!filename) {
         pCam->width = 320;
         pCam->height = 240;
@@ -68,7 +68,7 @@ int cvarReadCamera(const char* filename, CvarCamera* pCam) {
 
         CvMat* camera = (CvMat*) cvRead(
                 file, cvGetFileNodeByName(file, 0, "camera_matrix"));
-        //Copy camera matrix
+        // Copy camera matrix
         memcpy(pCam->matrix, camera->data.db, sizeof(double) * 9);
 
         CvMat* distortion = (CvMat*) cvRead(
@@ -78,7 +78,7 @@ int cvarReadCamera(const char* filename, CvarCamera* pCam) {
         cvReleaseFileStorage(&file);
     }
 
-    //Create OpenGL projection
+    // Create OpenGL projection
     cvarCameraProjection(pCam, pCam->projection);
     acMatrixTransposed(pCam->projection);
 
@@ -86,39 +86,39 @@ int cvarReadCamera(const char* filename, CvarCamera* pCam) {
 }
 
 void cvarCameraScale(CvarCamera* pCam, int width, int height) {
-    //This scaling algorithm refer to ARToolKit arParamChangeSize()
+    // This scaling algorithm refer to ARToolKit arParamChangeSize()
 
-    //Get ratio
+    // Get ratio
     float rt_u = (float) width / pCam->width;
     float rt_v = (float) height / pCam->height;
 
-    //ARToolKit only uses one ratio. But I used two ratio, so that, the data of the matrix
+    // ARToolKit only uses one ratio. But I used two ratio, so that, the data of the matrix
     // need to be scaled separately
-    //fx,fy (focal length)
+    // fx,fy (focal length)
     pCam->matrix[0] *= rt_u;
     pCam->matrix[1 * 3 + 1] *= rt_v;
 
-    //cx,cy (principal point)
+    // cx,cy (principal point)
     pCam->matrix[2] *= rt_u;
     pCam->matrix[1 * 3 + 2] *= rt_v;
 
     pCam->width = width;
     pCam->height = height;
 
-    //Recalculate OpenGL projection
+    // Recalculate OpenGL projection
     cvarCameraProjection(pCam, pCam->projection);
     acMatrixTransposed(pCam->projection);
 }
 
 void cvarCameraProjection(CvarCamera* pCam, double* projection, int glstyle) {
-    //The projection should be 4x4 matrix
+    // The projection should be 4x4 matrix
 
-    //Set the near plane and far plane, based on ARToolKit
-    //No more based on ARToolKit
+    // Set the near plane and far plane, based on ARToolKit
+    // No more based on ARToolKit
     float nearplane = 0.1f;
     float farplane = 5000.0f;
 
-    //Initialise with 0
+    // Initialise with 0
     memset(projection, 0, sizeof(double) * 16);
 
     projection[0] = 2. * pCam->matrix[0] / pCam->width;
@@ -188,11 +188,11 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
     // find squares in every color plane of the image
     for (c = 0; c < 1; c++) {
         // extract the c-th color plane
-        //Convert the image to greyscale
+        // Convert the image to greyscale
         cvCvtColor(timg, tgray, CV_BGR2GRAY);
 
         // try several threshold levels
-        //Modified: using only one threshold value
+        // Modified: using only one threshold value
         for (l = 0; l < 1; l++) {
             cvThreshold(tgray, gray, threshold, 255, CV_THRESH_BINARY);
 
@@ -220,9 +220,9 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
                 // Note: absolute value of an area is used because
                 // area may be positive or negative - in accordance with the
                 // contour orientation
-                //Modified: only positive contour will be returned
+                // Modified: only positive contour will be returned
 
-                //Check contour
+                // Check contour
                 int chkContour;
                 switch (inner) {
                 case 0:
@@ -238,8 +238,8 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
 
                 if (result->total == 4 && chkContour
                     && cvCheckContourConvexity(result)) {
-                    //Only if the square is smaller than the image
-                    //Modified: No need calculation of the angle
+                    // Only if the square is smaller than the image
+                    // Modified: No need calculation of the angle
                     if (((CvPoint*) cvGetSeqElem(result, 0))->x > 2
                         && ((CvPoint*) cvGetSeqElem(result, 0))->x
                            < img->width - 2
@@ -414,12 +414,12 @@ int CvarOpticalFlow::Update(IplImage* img, int nPoint, CvPoint2D32f* pts,
     CV_SWAP(prevPyramid, pyramid, swapTemp);
     CV_SWAP(points[0], points[1], swapPoints);
 
-    //Copy to output
+    // Copy to output
     for (int i = 0; i < nPoint; i++) {
         pts[i] = points[0][i];
     }
 
-    //Calculate point
+    // Calculate point
     int res = 0;
     for (int i = 0; i < nPoint; i++) {
         if (status[i]) {
@@ -449,17 +449,17 @@ int cvarLoadTemplate(CvarTemplate* tpl, const char* filename, int type) {
         return 0;
     }
 
-    //Create matrix
+    // Create matrix
     CvMat *mat = cvCreateMat(2, 3, CV_64F);
     cv2DRotationMatrix(cvPoint2D32f(file->width / 2 - 1, file->height / 2 - 1),
                        90, 1, mat);
 
-    //Generate 4 orientation
+    // Generate 4 orientation
     for (int i = 0; i < 4; i++) {
-        tpl->image[i] = cvCloneImage(file); //In greyscale
+        tpl->image[i] = cvCloneImage(file); // In greyscale
     }
 
-    //First one no rotation
+    // First one no rotation
     for (int i = 1; i < 4; i++) {
         cvWarpAffine(tpl->image[i - 1], tpl->image[i], mat);
     }
@@ -467,7 +467,7 @@ int cvarLoadTemplate(CvarTemplate* tpl, const char* filename, int type) {
     cvReleaseMat(&mat);
     cvReleaseImage(&file);
 
-    //Type
+    // Type
     tpl->type = type;
 
     return 1;
@@ -479,10 +479,10 @@ int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename) {
         return 0;
     }
 
-    //Crop image
+    // Crop image
     cvSetImageROI(file, cvRect(1, 1, 8, 8));
 
-    //Binarise
+    // Binarise
     IplImage* fileg = cvCreateImage(cvGetSize(file), 8, 1);
     cvCopy(file, fileg);
     cvThreshold(fileg, fileg, 100, 1, CV_THRESH_BINARY);
@@ -512,7 +512,7 @@ void cvarLoadTag(CvarTemplate* tpl, long long int bit) {
  * Free memory
  */
 void cvarReleaseTemplate(CvarTemplate* tpl) {
-    if (tpl->type == 2) //ARTag no template
+    if (tpl->type == 2) // ARTag no template
         return;
     for (int i = 0; i < 4; i++) {
         cvReleaseImage(&tpl->image[i]);
@@ -535,7 +535,7 @@ void cvarThresholdTemplate(CvarTemplate* tpl, int threshold) {
 int cvarCompareSquare(IplImage* img, CvPoint2D32f* points) {
     CvMemStorage* storage = cvCreateMemStorage();
 
-    //Find the square
+    // Find the square
     CvSeqReader reader;
     CvSeq* square = cvarFindSquares(img, storage);
 
@@ -550,7 +550,7 @@ int cvarCompareSquare(IplImage* img, CvPoint2D32f* points) {
         for (int j = 0; j < 4; j++)
             CV_READ_SEQ_ELEM(pt[j], reader);
 
-        //Compare the points
+        // Compare the points
         for (int j = 0; j < 4; j++) {
             for (int k = 0; k < 4; k++) {
                 AcPointf tPoint;
@@ -580,7 +580,7 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
     IplImage* cpy = cvCloneImage(img);
     int i;
 
-    //result
+    // result
     int res = 0;
 
     // initialize reader of the sequence
@@ -600,7 +600,7 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
         // draw the square as a closed polyline 
         cvPolyLine(cpy, &rect, &count, 1, 1, CV_RGB(0,255,0), 1, CV_AA, 0);
 
-        //Copy the points
+        // Copy the points
         for (int j = 0; j < 4; j++) {
             points[j].x = pt[j].x;
             points[j].y = pt[j].y;
@@ -614,8 +614,8 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
     }
     cvReleaseImage(&cpy);
 
-    //Clear memory
-    //cvClearMemStorage(g_storage);
+    // Clear memory
+    // cvClearMemStorage(g_storage);
 
     return res;
 }
@@ -625,7 +625,7 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
     IplImage* cpy = cvCloneImage(img);
     int i;
 
-    //result
+    // result
     int res = 0;
 
     // initialize reader of the sequence
@@ -645,7 +645,7 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
         // draw the square as a closed polyline 
         cvPolyLine(cpy, &rect, &count, 1, 1, CV_RGB(0,255,0), 1, CV_AA, 0);
 
-        //Copy the points
+        // Copy the points
         for (int j = 0; j < 4; j++) {
             points[j].x = pt[j].x;
             points[j].y = pt[j].y;
@@ -669,7 +669,7 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
  * @param ccw    Counter clockwise of the point
  */
 void cvarSquare(CvPoint2D32f* src, int width, int height, int ccw) {
-    //Reverse order is correct way
+    // Reverse order is correct way
     if (ccw) {
         src[0].x = 0;
         src[0].y = 0;
@@ -701,7 +701,7 @@ void cvarRotSquare(CvPoint2D32f* src, int rot) {
         temp[i] = src[i];
     }
 
-    //The fomula come from:
+    // The fomula come from:
     /* switch(rot) {
      case 1:
      src[0] = temp[0];
@@ -751,13 +751,13 @@ void cvarInvertPerspective(IplImage* input, IplImage* output, CvPoint2D32f* src,
 
 int cvarGetOrientation(IplImage* input, CvarTemplate tpl, double* match,
                        double thres) {
-    //Convert input to gray
+    // Convert input to gray
     IplImage* gray = cvCreateImage(cvSize(input->width, input->height),
                                    IPL_DEPTH_8U, 1);
-    //gray->origin = 1;
+    // gray->origin = 1;
     if (input->nChannels != 1) {
         cvCvtColor(input, gray, CV_BGR2GRAY);
-        cvFlip(gray, gray); //Because of some circumstance);
+        cvFlip(gray, gray); // Because of some circumstance);
     } else
         cvCopy(input, gray);
 
@@ -765,7 +765,7 @@ int cvarGetOrientation(IplImage* input, CvarTemplate tpl, double* match,
     int res = -1;
     for (int i = 0; i < 4; i++) {
 
-        //Using template matching
+        // Using template matching
         IplImage* result = cvCreateImage(cvSize(1, 1), IPL_DEPTH_32F, 1);
         result->origin = 1;
         cvMatchTemplate(gray, tpl.image[i], result, CV_TM_CCORR_NORMED);
@@ -779,7 +779,7 @@ int cvarGetOrientation(IplImage* input, CvarTemplate tpl, double* match,
         if ((maxval > thres) && (maxval > prevVal)) {
             prevVal = maxval;
 
-            //To output
+            // To output
             if (match)
                 *match = maxval;
             res = i;
@@ -799,7 +799,7 @@ int cvarGetOrientation(IplImage* input, CvarTemplate tpl, double* match,
  */
 void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
                         double* modelview, float ratio) {
-    //Calculate matrix
+    // Calculate matrix
     CvMat* imgPoint = cvCreateMat(4, 2, CV_64F);
     CvMat* objPoint = cvCreateMat(4, 3, CV_64F);
     cvarSquareInit(objPoint, ratio);
@@ -826,31 +826,31 @@ int cvarArRegistration(IplImage* img, CvPoint2D32f* points, CvarTemplate tpl,
     CvMemStorage* storage = cvCreateMemStorage();
     CvMemStorage* patStorage = cvCreateMemStorage();
 
-    //Greyscaling
+    // Greyscaling
     IplImage* grey = cvCreateImage(cvSize(img->width, img->height), 8, 1);
     cvCvtColor(img, grey, CV_BGR2GRAY);
-    //cvThreshold(grey,grey,100,255,CV_THRESH_BINARY);
+    // cvThreshold(grey,grey,100,255,CV_THRESH_BINARY);
     cvCvtColor(grey, img, CV_GRAY2BGR);
     cvReleaseImage(&grey);
 
     int res = 0;
 
-    //Find square
+    // Find square
     int square = 0;
-    //CvPoint2D32f points[4] = {0};
+    // CvPoint2D32f points[4] = {0};
     square = cvarGetSquare(img, cvarFindSquares(img, storage, thresh), points);
     if (square) {
-        //Get image within the square
+        // Get image within the square
         int pattern = 0;
         CvPoint2D32f patPoint[4] = { 0 };
         CvPoint2D32f patPointSrc[4];
-        cvarSquare(patPointSrc, tpl.image[0]->width, tpl.image[0]->height, 1); //Need to use ccw, don't know why
+        cvarSquare(patPointSrc, tpl.image[0]->width, tpl.image[0]->height, 1); // Need to use ccw, don't know why
 
         pattern = cvarGetSquare(img,
                                 cvarFindSquares(img, patStorage, thresh, 1),
                                 patPoint);
 
-        //Create pattern image
+        // Create pattern image
         IplImage* patImage = cvCreateImage(
                 cvSize(tpl.image[0]->width, tpl.image[1]->height), IPL_DEPTH_8U,
                 3);
@@ -860,7 +860,7 @@ int cvarArRegistration(IplImage* img, CvPoint2D32f* points, CvarTemplate tpl,
             cvarInvertPerspective(img, patImage, patPoint, patPointSrc);
             int orient = cvarGetOrientation(patImage, tpl, 0, matchThresh);
 
-            //Map orientation
+            // Map orientation
             if (orient) {
                 switch (orient) {
                 case 4:
@@ -873,7 +873,7 @@ int cvarArRegistration(IplImage* img, CvPoint2D32f* points, CvarTemplate tpl,
                 res = 1;
             }
 
-            //Debug
+            // Debug
             if (AC_CV_DEBUG) {
                 cvNamedWindow("output_d", 1);
                 cvShowImage("output_d", patImage);
@@ -944,8 +944,8 @@ void CvarAr::DetectMarker(unsigned char* imageData, int width, int height,
 
     CvPoint2D32f points[4] = { 0 };
     if (state == 0) {
-        //Binarise
-        //cvThreshold(arImage,arImage,thresh,255,CV_THRESH_BINARY);
+        // Binarise
+        // cvThreshold(arImage,arImage,thresh,255,CV_THRESH_BINARY);
 
         state = cvarArRegistration(arImage, points, marker, thresh,
                                    matchThresh);
@@ -1067,32 +1067,32 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
                          double matchThresh) {
     CvMemStorage* patStorage = cvCreateMemStorage();
 
-    //Greyscaling
+    // Greyscaling
     IplImage* grey = cvCreateImage(cvSize(img->width, img->height), 8, 1);
     cvCvtColor(img, grey, CV_BGR2GRAY);
-    //cvThreshold(grey,grey,100,255,CV_THRESH_BINARY);
+    // cvThreshold(grey,grey,100,255,CV_THRESH_BINARY);
     cvCvtColor(grey, img, CV_GRAY2BGR);
     cvReleaseImage(&grey);
 
-    //Find all squares
+    // Find all squares
     CvMemStorage* squareStorage = cvCreateMemStorage();
     vector<CvPoint2D32f> vPts;
     int nSquare = cvarGetAllSquares(cvarFindSquares(img, squareStorage, thresh),
                                     &vPts);
 
-    CvPoint2D32f points[4]; //For calculation
+    CvPoint2D32f points[4]; // For calculation
 
-    vector<CvarMarker> vMarker2; //For calculation
+    vector<CvarMarker> vMarker2; // For calculation
 
-    //For each square, check the pattern
+    // For each square, check the pattern
     for (int i = 0; i < nSquare; i++) {
 
-        //Get the subimage from the square
-        //Vector to array
-        //CvPoint2D32f arrPt[4];
+        // Get the subimage from the square
+        // Vector to array
+        // CvPoint2D32f arrPt[4];
         for (int j = 0; j < 4; j++) {
             points[j] = vPts[i * 4 + j];
-            //points[j] = arrPt[j];
+            // points[j] = arrPt[j];
         }
         CvRect rect = cvarSquare2Rect(points);
 
@@ -1103,7 +1103,7 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
         cvCopy(img, crop);
         cvResetImageROI(img);
 
-        //Get pattern from within the square
+        // Get pattern from within the square
         int pattern = 0;
         CvPoint2D32f patPoint[4] = { 0 };
 
@@ -1111,15 +1111,15 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
                                 cvarFindSquares(crop, patStorage, thresh, 1),
                                 patPoint);
 
-        //Create pattern image
+        // Create pattern image
         IplImage* patImage = cvCreateImage(cvGetSize(vTpl[0].image[0]), 8, 3);
         patImage->origin = 1;
 
         if (pattern) {
 
-            //For every template
+            // For every template
             for (int j = 0; j < vTpl.size(); j++) {
-                CvarMarker marker = { 0 }; //Important to initialise especially "match"
+                CvarMarker marker = { 0 }; // Important to initialise especially "match"
                 marker.id = i;
 
                 int res = 0;
@@ -1148,12 +1148,12 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
                     res = 1;
                 }
 
-                //If matched and get orientation, now compare the matched value
+                // If matched and get orientation, now compare the matched value
                 if (res) {
-                    //Matrix calculation
+                    // Matrix calculation
                     memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
-                    //Add the marker info
+                    // Add the marker info
                     vMarker2.push_back(marker);
                 }
             }
@@ -1163,12 +1163,12 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
         cvReleaseImage(&crop);
     }
 
-    //Process detected marker
-    //double matchVal=matchThresh;
+    // Process detected marker
+    // double matchVal=matchThresh;
     for (int i = 0; i < vMarker2.size(); i++) {
-        //Compare with the other
+        // Compare with the other
         for (int j = 0; j < i; j++) {
-            //If same detected marker, and same template, only one will survive
+            // If same detected marker, and same template, only one will survive
             if (vMarker2[i].id == vMarker2[j].id
                 || vMarker2[i].tpl == vMarker2[j].tpl) {
                 if (vMarker2[i].match > vMarker2[j].match)
@@ -1179,7 +1179,7 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
         }
     }
 
-    //To output
+    // To output
     for (int i = 0; i < vMarker2.size(); i++) {
         if (vMarker2[i].tpl >= 0 && vMarker2[i].id >= 0) {
             cvarSquareToMatrix(vMarker2[i].square, cam, vMarker2[i].modelview);
@@ -1193,7 +1193,7 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
 }
 
 int cvarTrack(CvPoint2D32f pt1[4], CvPoint2D32f pt2[4]) {
-    //Match the point direction
+    // Match the point direction
     for (int j = 0; j < 4; j++) { //4 direction
         int res = 0;
         for (int i = 0; i < 4; i++) {
@@ -1222,7 +1222,7 @@ int cvarTrack(CvPoint2D32f pt1[4], CvPoint2D32f pt2[4]) {
 int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                            vector<CvarTemplate> vTpl, CvarCamera* cam,
                            int thresh, double matchThresh) {
-    //Auto thresholding
+    // Auto thresholding
     int autothresh = 0;
     if (thresh == AC_THRESH_AUTO) {
         autothresh = 1;
@@ -1238,39 +1238,39 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
     CvMemStorage* patStorage = cvCreateMemStorage();
 
-    //Greyscaling
+    // Greyscaling
     IplImage* grey = cvCreateImage(cvSize(img->width, img->height), 8, 1);
     cvCvtColor(img, grey, CV_BGR2GRAY);
-    //cvThreshold(grey,grey,100,255,CV_THRESH_BINARY);
+    // cvThreshold(grey,grey,100,255,CV_THRESH_BINARY);
     cvCvtColor(grey, img, CV_GRAY2BGR);
     cvReleaseImage(&grey);
 
-    //Find all squares
+    // Find all squares
     CvMemStorage* squareStorage = cvCreateMemStorage();
     vector<CvPoint2D32f> vPts;
     int nSquare = cvarGetAllSquares(
             cvarFindSquares(img, squareStorage, thresh, 0), &vPts);
 
-    //Checking for previous marker square
-    vector<int> reserve; //For reserving the previous data
+    // Checking for previous marker square
+    vector<int> reserve; // For reserving the previous data
 
     for (int i = 0; i < vMarker->size(); i++) {
         for (int j = 0; j < vPts.size(); j += 4) {
-            //Points to array
+            // Points to array
             CvPoint2D32f arrPoint[4];
             for (int k = 0; k < 4; k++) {
                 arrPoint[k] = vPts[j + k];
             }
 
-            //If current is related to previous,
+            // If current is related to previous,
             // that means the previous one can be use, and the current one can be eliminated
             if (cvarTrack((*vMarker)[i].square, arrPoint)) {
                 reserve.push_back(i);
 
-                //Directly remove it from the vector, because removing is difficult
-                vPts.erase(vPts.begin() + j, vPts.begin() + j + 4); //Remove the 4 vertices
+                // Directly remove it from the vector, because removing is difficult
+                vPts.erase(vPts.begin() + j, vPts.begin() + j + 4); // Remove the 4 vertices
 
-                //Recalculate the modelview
+                // Recalculate the modelview
                 cvarSquareToMatrix((*vMarker)[i].square, cam,
                                    (*vMarker)[i].modelview,
                                    (*vMarker)[i].ratio);
@@ -1278,25 +1278,25 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         }
     }
 
-    //Make a copy of previous data
+    // Make a copy of previous data
     vector<CvarMarker> cpy = *vMarker;
     vMarker->clear();
 
-    //Store only the updated
+    // Store only the updated
     for (int i = 0; i < reserve.size(); i++) {
         vMarker->push_back(cpy[reserve[i]]);
     }
 
-    //For template matching part
-    CvPoint2D32f points[4]; //For calculation
+    // For template matching part
+    CvPoint2D32f points[4]; // For calculation
 
-    vector<CvarMarker> vMarker2; //For calculation
+    vector<CvarMarker> vMarker2; // For calculation
 
-    //For each square, check the pattern
+    // For each square, check the pattern
     for (int i = 0; i < vPts.size() / 4; i++) {
 
-        //Get the subimage from the square
-        //Vector to array
+        // Get the subimage from the square
+        // Vector to array
         for (int j = 0; j < 4; j++) {
             points[j] = vPts[i * 4 + j];
         }
@@ -1313,94 +1313,94 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         cvCopy(img, crop);
         cvResetImageROI(img);
 
-        //Get pattern from within the square
+        // Get pattern from within the square
         int pattern = 0;
         CvPoint2D32f patPoint[4] = { 0 };
 
-        //For every template
+        // For every template
         for (int j = 0; j < vTpl.size(); j++) {
 
-            //Different algorithm
-            if (vTpl[j].type == 0) //Find inner white square
+            // Different algorithm
+            if (vTpl[j].type == 0) // Find inner white square
                 pattern = cvarGetSquare(
                         crop, cvarFindSquares(crop, patStorage, thresh, 1),
                         patPoint);
-            else if (vTpl[j].type != 0) //Find outer black square
+            else if (vTpl[j].type != 0) // Find outer black square
                 pattern = cvarGetSquare(
                         crop, cvarFindSquares(crop, patStorage, thresh, 0),
                         patPoint);
 
             if (pattern) {
-                //Create pattern image
+                // Create pattern image
                 IplImage* patImage;
-                if (vTpl[j].type != 2) //Not ARTag, ARTag must be 10x10
+                if (vTpl[j].type != 2) // Not ARTag, ARTag must be 10x10
                     patImage = cvCreateImage(cvGetSize(vTpl[j].image[0]), 8, 3);
                 else
-                    //ARTag
+                    // ARTag
                     patImage = cvCreateImage(cvSize(10, 10), 8, 3);
 
                 patImage->origin = 1;
 
-                CvarMarker marker = { 0 }; //Important to initialise especially "match"
+                CvarMarker marker = { 0 }; // Important to initialise especially "match"
                 marker.id = i;
 
                 int res = 0;
 
                 CvPoint2D32f patPointSrc[4];
 
-                //Different algorithm
-                if (vTpl[j].type == 0) { //ARToolKit
+                // Different algorithm
+                if (vTpl[j].type == 0) { // ARToolKit
                     cvarSquare(patPointSrc, vTpl[j].image[j]->width,
                                vTpl[j].image[j]->height, 1);
-                } else if (vTpl[j].type == 2) { //ARTag
+                } else if (vTpl[j].type == 2) { // ARTag
                     cvarSquare(patPointSrc, 10, 10, 0);
                 } else
-                    //acAR
+                    // acAR
                     cvarSquare(patPointSrc, vTpl[j].image[j]->width,
                                vTpl[j].image[j]->height, 0);
 
                 cvarInvertPerspective(crop, patImage, patPoint, patPointSrc);
 
                 int orient;
-                if (vTpl[j].type != 2) { //Non-ARTag
+                if (vTpl[j].type != 2) { // Non-ARTag
                     orient = cvarGetOrientation(patImage, vTpl[j],
                                                 &marker.match, matchThresh);
                 } else {
-                    //Crop
+                    // Crop
                     CvRect croptag = cvRect(1, 1, 8, 8);
                     cvSetImageROI(patImage, croptag);
 
-                    //Binarise
+                    // Binarise
                     IplImage* patImageg = cvCreateImage(cvGetSize(patImage), 8,
                                                         1);
                     cvCvtColor(patImage, patImageg, CV_BGR2GRAY);
                     cvThreshold(patImageg, patImageg, thresh, 1,
                                 CV_THRESH_BINARY);
 
-                    //Image to bit
+                    // Image to bit
                     long long int bit;
                     acArray2DToBit((unsigned char*) patImageg->imageData,
                                    patImageg->width, patImageg->height, &bit);
 
-                    //Get orientation of the bit
+                    // Get orientation of the bit
                     orient = 0;
                     for (int k = 0; k < 4; k++) {
                         if (bit == vTpl[j].code[k])
                             orient = k + 1;
                     }
 
-                    //Match
+                    // Match
                     if (orient)
-                        marker.match = 1; //So that it is the best
+                        marker.match = 1; // So that it is the best
                     else
                         marker.match = 0;
 
-                    //Release
+                    // Release
                     cvReleaseImage(&patImageg);
                     cvResetImageROI(patImage);
                 }
 
-                //Record the current template so that later will be pushed into vector
+                // Record the current template so that later will be pushed into vector
                 marker.tpl = j;
 
                 if (orient) {
@@ -1416,19 +1416,19 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                     res = 1;
                 }
 
-                //If matched and get orientation, now compare the matched value
+                // If matched and get orientation, now compare the matched value
                 if (res) {
-                    //Matrix calculation
+                    // Matrix calculation
                     memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
-                    //Add in ratio
-                    if (vTpl[j].type != 2) //Non ARTag
+                    // Add in ratio
+                    if (vTpl[j].type != 2) // Non ARTag
                         marker.ratio = (float) (vTpl[j].image[0]->width)
                                        / vTpl[j].image[0]->height;
                     else
                         marker.ratio = 1;
 
-                    //Add the marker info
+                    // Add the marker info
                     vMarker2.push_back(marker);
                 }
 
@@ -1446,12 +1446,12 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         cvReleaseImage(&crop);
     }
 
-    //Process detected marker
-    //double matchVal=matchThresh;
+    // Process detected marker
+    // double matchVal=matchThresh;
     for (int i = 0; i < vMarker2.size(); i++) {
-        //Compare with the other
+        // Compare with the other
         for (int j = 0; j < i; j++) {
-            //If same detected marker, and same template, only one will survive
+            // If same detected marker, and same template, only one will survive
             if (vMarker2[i].id == vMarker2[j].id
                 || vMarker2[i].tpl == vMarker2[j].tpl) {
                 if (vMarker2[i].match > vMarker2[j].match)
@@ -1462,7 +1462,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         }
     }
 
-    //To output
+    // To output
     for (int i = 0; i < vMarker2.size(); i++) {
         if (vMarker2[i].tpl >= 0 && vMarker2[i].id >= 0) {
             cvarSquareToMatrix(vMarker2[i].square, cam, vMarker2[i].modelview,
@@ -1474,7 +1474,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
     cvReleaseMemStorage(&patStorage);
     cvReleaseMemStorage(&squareStorage);
 
-    //Auto threshold
+    // Auto threshold
     if (autothresh) {
         if (vMarker->size()) {
             g_needRandom = 0;
