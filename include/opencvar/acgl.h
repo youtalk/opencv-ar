@@ -39,17 +39,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Superceded by acGlSelect2()
  */
 
-#ifndef AC_GL_H
-#define AC_GL_H
-
-#ifdef __MINGW32__
-#	include <GL/glext.h>
-#endif
+#pragma once
 
 #ifdef ACDLL
-#	define AC_DLL __declspec(dllexport)
+#      define AC_DLL __declspec(dllexport)
 #else
-#	define AC_DLL
+#      define AC_DLL
 #endif
 
 /**
@@ -200,5 +195,3 @@ private:
 	GLuint m_uBase;
 	int m_bInit;
 };
-
-#endif

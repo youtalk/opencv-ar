@@ -36,12 +36,8 @@ acgl.cpp handles the OpenGL related functions
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#ifdef __WINDOWS__
-# include <windows.h>
-#endif
 #include <GL/gl.h>
 #include <GL/glut.h>
-                                              
 #include "opencvar/acgl.h"
 
 using namespace std;

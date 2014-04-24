@@ -29,22 +29,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <vector>
 #include <time.h>
-
-#ifdef __WINDOWS__
-# include <windows.h>
-#endif
-
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
-
 #include "opencvar/opencvar.h"
 #include "opencvar/acmath.h"
-
 
 using namespace std;
 
 int AC_CV_DEBUG = 0;
-
 
 static int g_thresh = -1; //For storing auto threshold value
 static int g_needRandom = 1; //For checking need randomise the threshold or not

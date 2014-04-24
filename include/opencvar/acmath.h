@@ -37,15 +37,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * Add in 3x3 matrix inversion, 2x2.
  */
 
-#ifndef AC_MATH_H
-#define AC_MATH_H
+#pragma once
 
 #ifdef ACDLL
-#	define AC_DLL __declspec(dllexport)
+#      define AC_DLL __declspec(dllexport)
 #else
-#	define AC_DLL
+#      define AC_DLL
 #endif
-
 
 /**
  * This struct follows OpenCV point structure. So that, without OpenCV,
@@ -231,5 +229,3 @@ AC_DLL void acBitRotate(long long int* bit,int rot);
 /** @} end mathFunc */
 
 } //extern
-
-#endif

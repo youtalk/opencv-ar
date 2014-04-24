@@ -34,28 +34,17 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * \version 0.0.2
  */
 
-#ifndef AC_CV_H
-#define AC_CV_H
+#pragma once
 
 #ifdef ACDLL
-#	define AC_DLL __declspec(dllexport)
+#      define AC_DLL __declspec(dllexport)
 #else
-#	define AC_DLL
+#      define AC_DLL
 #endif
 
-#ifndef _VECTOR_
-# include <vector>
-#endif
-
-//OpenCV Header
-#ifndef _CV_H
-# include <opencv/cv.h>
-#endif
-
-#ifndef _HIGH_GUI_
-# include <opencv/highgui.h>
-#endif
-
+#include <vector>
+#include <opencv/cv.h>
+#include <opencv/highgui.h>
 
 using namespace std;
 
@@ -518,5 +507,3 @@ private:
 	
 	int state;
 };
-
-#endif

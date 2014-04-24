@@ -30,17 +30,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 #include <iostream>
-
-
 #include "opencvar/acmath.h"
 
 #define AC_PI 3.1415927
 
-
 using namespace std;
-
 
 void acVectorPrint(float *v) {
 	for(int i=0;i<3;i++) {

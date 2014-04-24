@@ -28,13 +28,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <iostream>
 #include <fstream>
 #include <vector>
-
 #include <GL/glut.h>
 #include <time.h>
-
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
-
 #include "opencvar/opencvar.h"
 #include "opencvar/acmath.h"
 #include "opencvar/acgl.h"
@@ -42,18 +39,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using namespace std;
 
 CvarCamera g_cam; //The global camera data
-
 vector<CvarTemplate> g_vtpl; //Vector of AR template
-
 CvCapture* g_cap; //Video capturing
-
-float g_projection[16];
-double g_modelview[16];
-
 vector<CvarMarker> g_marker;
-
-int g_lastdetect = 0;
-int g_currentWindow, g_originalWindow;
 
 void display() {
     IplImage* frame = cvQueryFrame(g_cap);
