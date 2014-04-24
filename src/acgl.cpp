@@ -337,14 +337,6 @@ int acGlSelect(int x, int y, float* projection, float* modelview,
                 choose = buffer[i * 4 + 3];
                 depth = buffer[i * 4 + 1];
             }
-            /*nNames=*ptr;
-             cout<<"Number of names in name stack: "<<nNames<<endl; ptr++;
-             cout<<"z1: "<<(float)*ptr/0x7fffffff<<", "; ptr++;
-             cout<<"z2: "<<(float)*ptr/0x7fffffff<<endl; ptr++;
-             for(int j=0;j<nNames;j++) {
-             cout<<"Name: "<<*ptr<<" "; ptr++;
-             }
-             cout<<endl; //*/
         }
     }
     return choose;
@@ -419,15 +411,11 @@ int acGlProcessHit(GLint hits, GLuint buffer[]) {
     if (hits > 0) {
         float depth = 10;
 
-        //printf("Number of hit: %d\n",hits);
         for (int i = 0; i < hits; i++) {
             nNames = *ptr++;
-            //printf("Number of names in name stack: %d\n",nNames);
 
             float z1 = (float) *ptr++ / 0x7fffffff;
             float z2 = (float) *ptr++ / 0x7fffffff;
-
-            //printf("z1: %g\nz2: %g\n",z1,z2);
 
             if (z1 < depth) {
                 depth = z1;
@@ -435,12 +423,9 @@ int acGlProcessHit(GLint hits, GLuint buffer[]) {
             }
 
             for (int j = 0; j < nNames; j++) {
-                //printf("Name: %d\t",*ptr);
                 ptr++;
             }
-            //printf("\n");
         }
-        //printf("\n");
     }
     return choose;
 }

@@ -131,17 +131,6 @@ void cvarCameraProjection(CvarCamera* pCam, double* projection, int glstyle) {
 
     if (glstyle)
         acMatrixTransposed(projection);
-
-}
-
-/**
- * OpenCV dummy function. Because of cvLoad() for Haar detection might cause problem,
- * this function can be used.
- */
-void cvarDummy() {
-    IplImage* dummy = cvCreateImage(cvSize(1, 1), IPL_DEPTH_8U, 1);
-    cvErode(dummy, dummy);
-    cvReleaseImage(&dummy);
 }
 
 /**
@@ -201,8 +190,6 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
         // extract the c-th color plane
         //Convert the image to greyscale
         cvCvtColor(timg, tgray, CV_BGR2GRAY);
-        //cvSetImageCOI( timg, c+1 );
-        //cvCopy( timg, tgray, 0 );
 
         // try several threshold levels
         //Modified: using only one threshold value
@@ -245,41 +232,20 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
                     chkContour = cvContourArea(result, CV_WHOLE_SEQ) < -500;
                     break;
                 case 2:
-                    chkContour = fabs(cvContourArea(result, CV_WHOLE_SEQ))
-                                 > 500;
+                    chkContour = fabs(cvContourArea(result, CV_WHOLE_SEQ)) > 500;
                     break;
                 }
 
                 if (result->total == 4 && chkContour
                     && cvCheckContourConvexity(result)) {
-                    /*s = 0;
-
-                     for( i = 0; i < 5; i++ )
-                     {
-                     // find minimum angle between joint
-                     // edges (maximum of cosine)
-                     if( i >= 2 )
-                     {
-                     t = fabs(acAngle(
-                     (AcPointi*)(CvPoint*)cvGetSeqElem( result, i ),
-                     (AcPointi*)(CvPoint*)cvGetSeqElem( result, i-2 ),
-                     (AcPointi*)(CvPoint*)cvGetSeqElem( result, i-1 )));
-                     s = s > t ? s : t;
-                     }
-                     }//*/
-
-                    // if cosines of all angles are small
-                    // (all angles are ~90 degree) then write quandrange
-                    // vertices to resultant sequence 
-                    //if( s < 0.3 )
                     //Only if the square is smaller than the image
                     //Modified: No need calculation of the angle
-                    if ( //s < 0.3 &&
-                    ((CvPoint*) cvGetSeqElem(result, 0))->x > 2
-                    && ((CvPoint*) cvGetSeqElem(result, 0))->x < img->width - 2
-                    && ((CvPoint*) cvGetSeqElem(result, 0))->y > 2
-                    && ((CvPoint*) cvGetSeqElem(result, 0))->y
-                       < img->height - 2) {
+                    if (((CvPoint*) cvGetSeqElem(result, 0))->x > 2
+                        && ((CvPoint*) cvGetSeqElem(result, 0))->x
+                           < img->width - 2
+                        && ((CvPoint*) cvGetSeqElem(result, 0))->y > 2
+                        && ((CvPoint*) cvGetSeqElem(result, 0))->y
+                           < img->height - 2) {
                         for (i = 0; i < 4; i++)
                             cvSeqPush(squares,
                                       (CvPoint*) cvGetSeqElem(result, i));
@@ -1166,7 +1132,6 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
 
                 int orient = cvarGetOrientation(patImage, vTpl[j],
                                                 &marker.match, matchThresh);
-                //printf("%d,%d: %f\n",i,j,marker.match);
 
                 marker.tpl = j;
 
@@ -1190,30 +1155,18 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
 
                     //Add the marker info
                     vMarker2.push_back(marker);
-
                 }
-
-                if (0) {
-                    cvNamedWindow("output_d", 1);
-                    cvShowImage("output_d", patImage);
-                    cvNamedWindow("template_d", 1);
-                    cvShowImage("template_d", vTpl[j].image[0]);
-                }
-
             }
-
         }
 
         cvReleaseImage(&patImage);
         cvReleaseImage(&crop);
-
     }
 
     //Process detected marker
     //double matchVal=matchThresh;
     for (int i = 0; i < vMarker2.size(); i++) {
         //Compare with the other
-        //printf("%d, id = %d, tpl = %d, match = %f\n",i,vMarker2[i].id,vMarker2[i].tpl,vMarker2[i].match);
         for (int j = 0; j < i; j++) {
             //If same detected marker, and same template, only one will survive
             if (vMarker2[i].id == vMarker2[j].id
@@ -1229,7 +1182,6 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
     //To output
     for (int i = 0; i < vMarker2.size(); i++) {
         if (vMarker2[i].tpl >= 0 && vMarker2[i].id >= 0) {
-            //printf("out: %d, id = %d, tpl = %d, match = %f\n",i,vMarker2[i].id,vMarker2[i].tpl,vMarker2[i].match);
             cvarSquareToMatrix(vMarker2[i].square, cam, vMarker2[i].modelview);
             vMarker->push_back(vMarker2[i]);
         }
@@ -1237,8 +1189,6 @@ int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
 
     cvReleaseMemStorage(&patStorage);
     cvReleaseMemStorage(&squareStorage);
-    //if(vMarker->size() > 1)
-    //exit(0);
     return vMarker->size();
 }
 
@@ -1347,10 +1297,8 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
         //Get the subimage from the square
         //Vector to array
-        //CvPoint2D32f arrPt[4];
         for (int j = 0; j < 4; j++) {
             points[j] = vPts[i * 4 + j];
-            //points[j] = arrPt[j];
         }
         CvRect rect = cvarSquare2Rect(points);
         rect.x -= 5;
@@ -1417,7 +1365,6 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 if (vTpl[j].type != 2) { //Non-ARTag
                     orient = cvarGetOrientation(patImage, vTpl[j],
                                                 &marker.match, matchThresh);
-                    //printf("%d,%d: %f\n",i,j,marker.match);
                 } else {
                     //Crop
                     CvRect croptag = cvRect(1, 1, 8, 8);
@@ -1448,13 +1395,9 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                     else
                         marker.match = 0;
 
-                    //cvThreshold(patImageg,patImageg,0.5,255,CV_THRESH_BINARY);
-                    //cvCvtColor(patImageg,patImage,CV_GRAY2BGR);
-
                     //Release
                     cvReleaseImage(&patImageg);
                     cvResetImageROI(patImage);
-
                 }
 
                 //Record the current template so that later will be pushed into vector
@@ -1487,7 +1430,6 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
                     //Add the marker info
                     vMarker2.push_back(marker);
-
                 }
 
                 if (AC_CV_DEBUG && vTpl[j].type != 2) {
@@ -1498,20 +1440,16 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 }
 
                 cvReleaseImage(&patImage);
-
             }
-
         }
 
         cvReleaseImage(&crop);
-
     }
 
     //Process detected marker
     //double matchVal=matchThresh;
     for (int i = 0; i < vMarker2.size(); i++) {
         //Compare with the other
-        //printf("%d, id = %d, tpl = %d, match = %f\n",i,vMarker2[i].id,vMarker2[i].tpl,vMarker2[i].match);
         for (int j = 0; j < i; j++) {
             //If same detected marker, and same template, only one will survive
             if (vMarker2[i].id == vMarker2[j].id
@@ -1527,7 +1465,6 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
     //To output
     for (int i = 0; i < vMarker2.size(); i++) {
         if (vMarker2[i].tpl >= 0 && vMarker2[i].id >= 0) {
-            //printf("out: %d, id = %d, tpl = %d, match = %f\n",i,vMarker2[i].id,vMarker2[i].tpl,vMarker2[i].match);
             cvarSquareToMatrix(vMarker2[i].square, cam, vMarker2[i].modelview,
                                vMarker2[i].ratio);
             vMarker->push_back(vMarker2[i]);

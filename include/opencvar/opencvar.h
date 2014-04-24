@@ -122,14 +122,6 @@ AC_DLL void cvarCameraProjection(CvarCamera* pCam, double* projection,
                                  int glstyle = 0);
 
 /**
- * @brief
- *
- * OpenCV dummy function. Because of cvLoad() for Haar detection might cause problem,
- * this function can be used.
- */
-AC_DLL void cvarDummy();
-
-/**
  * @brief Convert to OpenGL matrix
  * @param modelview    [Out] 16 size
  */
