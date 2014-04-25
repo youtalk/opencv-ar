@@ -38,13 +38,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
-CvarCamera g_cam; //The global camera data
-vector<CvarTemplate> g_vtpl; //Vector of AR template
-CvCapture* g_cap; //Video capturing
-vector<CvarMarker> g_marker;
+CvarCamera camera;
+vector<CvarTemplate> templates;
+CvCapture* capture;
+vector<CvarMarker> markers;
 
 void display() {
-    IplImage* frame = cvQueryFrame(g_cap);
+    IplImage* frame = cvQueryFrame(capture);
     cvFlip(frame, frame);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -57,8 +57,7 @@ void display() {
                        frame->height, frame->nChannels, 1);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    //Detect marker
-    int ar_detect = cvarArMultRegistration(frame, &g_marker, g_vtpl, &g_cam,
+    int ar_detect = cvarArMultRegistration(frame, &markers, templates, &camera,
                                            AC_THRESH_AUTO, 0.8);
 
     glMatrixMode(GL_MODELVIEW);
@@ -68,34 +67,28 @@ void display() {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
 
-        if (g_marker[i].tpl == 0) {
+        if (markers[i].tpl == 0) {
 
-            glLoadMatrixd(g_marker[i].modelview);
+            glLoadMatrixd(markers[i].modelview);
             glRotatef(90, 1, 0, 0);
             glTranslatef(0, 0.5, 0);
             glutSolidTeapot(1);
-
-            //glGetFloatv(GL_PROJECTION_MATRIX,g_projection);
-            //glGetFloatv(GL_MODELVIEW_MATRIX,g_modelview);
         }
 
         glDisable(GL_LIGHTING);
-
     }
 
     glPopMatrix();
-
     glutSwapBuffers();
 }
 
-void reshape(int w, int h) {
-    glViewport(0, 0, w, h);
+void reshape(int width, int height) {
+    glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
     double projection[16];
-    cvarCameraProjection(&g_cam, projection);
-
+    cvarCameraProjection(&camera, projection);
     acMatrixTransposed(projection);
     glLoadMatrixd(projection);
 
@@ -103,27 +96,14 @@ void reshape(int w, int h) {
     glLoadIdentity();
 }
 
-void mouse(int button, int state, int x, int y) {
-    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-
-    }
-}
-
 void idle() {
     glutPostRedisplay();
-}
-
-void visible(int vis) {
-    if (vis == GLUT_VISIBLE) {
-        glutIdleFunc(idle);
-    } else
-        glutIdleFunc(NULL);
 }
 
 void keyboard(unsigned char key, int x, int y) {
     switch (key) {
     case 27:
-        cvReleaseCapture(&g_cap);
+        cvReleaseCapture(&capture);
         exit(0);
         break;
     }
@@ -133,39 +113,34 @@ int main(int argc, char** argv) {
     if (argc < 3)
         return -1;
 
-    g_cap = cvCreateCameraCapture(atoi(argv[1]));
-    if (!g_cap) {
+    cvarEnableDebug();
+    capture = cvCreateCameraCapture(atoi(argv[1]));
+    if (!capture) {
         fprintf(stderr, "Create camera capture failed\n");
         return 1;
     }
 
     CvarTemplate tpl;
     cvarLoadTemplateTag(&tpl, argv[2]);
-    //cvarLoadTag(&tpl, 0x49a99b1d19aaaa44LL); //Using code
-    g_vtpl.push_back(tpl);
+    templates.push_back(tpl);
 
-    IplImage* frame = cvQueryFrame(g_cap);
-    cvarReadCamera(NULL, &g_cam);
-    cvarCameraScale(&g_cam, frame->width, frame->height);
+    IplImage* frame = cvQueryFrame(capture);
+    cvarReadCamera(NULL, &camera);
+    cvarCameraScale(&camera, frame->width, frame->height);
 
-    //Initialisation
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(640, 480);
+    glutCreateWindow("ARTest");
 
-    glutCreateWindow("MyGLUT");
-
-    //Callback
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
-    glutKeyboardFunc(keyboard); //ASCII key
-    glutMouseFunc(mouse);
+    glutKeyboardFunc(keyboard);
     glutIdleFunc(idle);
 
     glEnable(GL_DEPTH_TEST);
-
     glutMainLoop();
-    cvReleaseCapture(&g_cap);
+    cvReleaseCapture(&capture);
 
     return 0;
 }

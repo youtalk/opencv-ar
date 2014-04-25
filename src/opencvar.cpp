@@ -198,7 +198,7 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
 
             if (AC_CV_DEBUG) {
                 gray->origin = 1;
-                cvNamedWindow("find_d", 1);
+                cvNamedWindow("find_d", CV_WINDOW_AUTOSIZE);
                 cvShowImage("find_d", gray);
             }
 
@@ -655,7 +655,7 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
     }
 
     if (AC_CV_DEBUG) {
-        cvNamedWindow("square_d", 1);
+        cvNamedWindow("square_d", CV_WINDOW_AUTOSIZE);
         cvShowImage("square_d", cpy);
     }
     cvReleaseImage(&cpy);
@@ -875,9 +875,9 @@ int cvarArRegistration(IplImage* img, CvPoint2D32f* points, CvarTemplate tpl,
 
             // Debug
             if (AC_CV_DEBUG) {
-                cvNamedWindow("output_d", 1);
+                cvNamedWindow("output_d", CV_WINDOW_AUTOSIZE);
                 cvShowImage("output_d", patImage);
-                cvNamedWindow("template_d", 1);
+                cvNamedWindow("template_d", CV_WINDOW_AUTOSIZE);
                 cvShowImage("template_d", tpl.image[0]);
             }
         }
@@ -1433,9 +1433,9 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 }
 
                 if (AC_CV_DEBUG && vTpl[j].type != 2) {
-                    cvNamedWindow("output_d", 1);
+                    cvNamedWindow("output_d", CV_WINDOW_AUTOSIZE);
                     cvShowImage("output_d", patImage);
-                    cvNamedWindow("template_d", 1);
+                    cvNamedWindow("template_d", CV_WINDOW_AUTOSIZE);
                     cvShowImage("template_d", vTpl[j].image[0]);
                 }
 
