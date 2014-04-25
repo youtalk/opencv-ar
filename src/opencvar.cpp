@@ -439,40 +439,6 @@ int CvarOpticalFlow::Update(IplImage* img, int nPoint, CvPoint2D32f* pts,
  Augmented Reality
  ****************/
 
-/**
- * Load the template
- * @param tpl [out]    The struct store the template
- */
-int cvarLoadTemplate(CvarTemplate* tpl, const char* filename, int type) {
-    IplImage* file = cvLoadImage(filename, CV_LOAD_IMAGE_GRAYSCALE);
-    if (!file) {
-        return 0;
-    }
-
-    // Create matrix
-    CvMat *mat = cvCreateMat(2, 3, CV_64F);
-    cv2DRotationMatrix(cvPoint2D32f(file->width / 2 - 1, file->height / 2 - 1),
-                       90, 1, mat);
-
-    // Generate 4 orientation
-    for (int i = 0; i < 4; i++) {
-        tpl->image[i] = cvCloneImage(file); // In greyscale
-    }
-
-    // First one no rotation
-    for (int i = 1; i < 4; i++) {
-        cvWarpAffine(tpl->image[i - 1], tpl->image[i], mat);
-    }
-
-    cvReleaseMat(&mat);
-    cvReleaseImage(&file);
-
-    // Type
-    tpl->type = type;
-
-    return 1;
-}
-
 int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename) {
     IplImage* file = cvLoadImage(filename, CV_LOAD_IMAGE_GRAYSCALE);
     if (!file) {
@@ -904,8 +870,8 @@ CvarAr::~CvarAr() {
 /**
  * Load template file
  */
-int CvarAr::LoadTemplate(char* filename) {
-    return cvarLoadTemplate(&marker, filename);
+int CvarAr::LoadTemplateTag(char* filename) {
+    return cvarLoadTemplateTag(&marker, filename);
 }
 
 /**

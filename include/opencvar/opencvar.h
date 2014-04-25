@@ -166,15 +166,6 @@ AC_DLL void cvarFindCamera(CvarCamera* cam, CvMat* objPts, CvMat* imgPts,
  ****************/
 
 /**
- * @brief Load the template
- * @param tpl [out]    The struct store the template
- * @param type The type of the template, default is like ARToolKit, 1 = Whole image
- * @return 1 = success, 0 = fail
- */
-AC_DLL int cvarLoadTemplate(CvarTemplate* tpl, const char* filename, int type =
-        0);
-
-/**
  * @brief Load template image, 10x10 size, and convert to ARTag
  *
  * This function will call cvarLoadTag()
@@ -394,7 +385,7 @@ public:
      * @param filename    Filename of the template
      * @return 1 = sucess, 0 = fail
      */
-    int LoadTemplate(char* filename);
+    int LoadTemplateTag(char* filename);
 
     /**
      * @brief Load camera parameter
