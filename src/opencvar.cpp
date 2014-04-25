@@ -592,10 +592,10 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
         int count = 4;
 
         // read 4 vertices
-        CV_READ_SEQ_ELEM( pt[0], reader);
-        CV_READ_SEQ_ELEM( pt[1], reader);
-        CV_READ_SEQ_ELEM( pt[2], reader);
-        CV_READ_SEQ_ELEM( pt[3], reader);
+        CV_READ_SEQ_ELEM(pt[0], reader);
+        CV_READ_SEQ_ELEM(pt[1], reader);
+        CV_READ_SEQ_ELEM(pt[2], reader);
+        CV_READ_SEQ_ELEM(pt[3], reader);
 
         // draw the square as a closed polyline 
         cvPolyLine(cpy, &rect, &count, 1, 1, CV_RGB(0,255,0), 1, CV_AA, 0);
@@ -613,9 +613,6 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
         cvCopy(cpy, img);
     }
     cvReleaseImage(&cpy);
-
-    // Clear memory
-    // cvClearMemStorage(g_storage);
 
     return res;
 }
@@ -637,10 +634,10 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
         int count = 4;
 
         // read 4 vertices
-        CV_READ_SEQ_ELEM( pt[0], reader);
-        CV_READ_SEQ_ELEM( pt[1], reader);
-        CV_READ_SEQ_ELEM( pt[2], reader);
-        CV_READ_SEQ_ELEM( pt[3], reader);
+        CV_READ_SEQ_ELEM(pt[0], reader);
+        CV_READ_SEQ_ELEM(pt[1], reader);
+        CV_READ_SEQ_ELEM(pt[2], reader);
+        CV_READ_SEQ_ELEM(pt[3], reader);
 
         // draw the square as a closed polyline 
         cvPolyLine(cpy, &rect, &count, 1, 1, CV_RGB(0,255,0), 1, CV_AA, 0);
