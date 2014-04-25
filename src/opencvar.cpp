@@ -1368,11 +1368,9 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                     cvSetImageROI(patImage, croptag);
 
                     // Binarise
-                    IplImage* patImageg = cvCreateImage(cvGetSize(patImage), 8,
-                                                        1);
+                    IplImage* patImageg = cvCreateImage(cvGetSize(patImage), 8, 1);
                     cvCvtColor(patImage, patImageg, CV_BGR2GRAY);
-                    cvThreshold(patImageg, patImageg, thresh, 1,
-                                CV_THRESH_BINARY);
+                    cvThreshold(patImageg, patImageg, thresh, 1, CV_THRESH_BINARY);
 
                     // Image to bit
                     long long int bit;

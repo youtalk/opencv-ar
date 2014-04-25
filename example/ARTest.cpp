@@ -26,22 +26,18 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ***************/
 
 #include <iostream>
-#include <fstream>
 #include <vector>
 #include <GL/glut.h>
-#include <time.h>
 #include <opencv/cv.h>
 #include <opencv/highgui.h>
 #include "opencvar/opencvar.h"
 #include "opencvar/acmath.h"
 #include "opencvar/acgl.h"
 
-using namespace std;
-
 CvarCamera camera;
-vector<CvarTemplate> templates;
+std::vector<CvarTemplate> templates;
 CvCapture* capture;
-vector<CvarMarker> markers;
+std::vector<CvarMarker> markers;
 
 void display() {
     IplImage* frame = cvQueryFrame(capture);
@@ -55,25 +51,22 @@ void display() {
     glPushMatrix();
     acGlTextureProject((unsigned char*) frame->imageData, frame->width,
                        frame->height, frame->nChannels, 1);
+
+    cvarArMultRegistration(frame, &markers, templates, &camera,
+                           AC_THRESH_AUTO, 0.8);
+
     glClear(GL_DEPTH_BUFFER_BIT);
-
-    int ar_detect = cvarArMultRegistration(frame, &markers, templates, &camera,
-                                           AC_THRESH_AUTO, 0.8);
-
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
-    for (int i = 0; i < ar_detect; i++) {
+    for (auto& marker : markers) {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
 
-        if (markers[i].tpl == 0) {
-
-            glLoadMatrixd(markers[i].modelview);
-            glRotatef(90, 1, 0, 0);
-            glTranslatef(0, 0.5, 0);
-            glutSolidTeapot(1);
-        }
+        glLoadMatrixd(marker.modelview);
+        glRotatef(90, 1, 0, 0);
+        glTranslatef(0, 0.5, 0);
+        glutSolidTeapot(1);
 
         glDisable(GL_LIGHTING);
     }
@@ -116,8 +109,8 @@ int main(int argc, char** argv) {
     cvarEnableDebug();
     capture = cvCreateCameraCapture(atoi(argv[1]));
     if (!capture) {
-        fprintf(stderr, "Create camera capture failed\n");
-        return 1;
+        std::cerr << "Create camera capture failed" << std::endl;
+        return -1;
     }
 
     CvarTemplate tpl;
