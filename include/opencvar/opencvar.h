@@ -71,7 +71,7 @@ struct CvarTemplate {
     IplImage *image[4];
     int width;
     int height;
-    long long int code[4]; // For ARTag
+    long long int code[4];
 };
 
 /**
@@ -84,7 +84,6 @@ struct CvarMarker {
     double match; /**< Match level in range [0,1] (for comparison) */
     vector<CvPoint2D32f> pt; /**< The points of the marker */
     CvPoint2D32f square[4]; /**< Storing square vertices */
-
     float ratio; /**< For the non-square rectangular, width:height ratio */
 };
 

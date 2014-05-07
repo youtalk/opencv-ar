@@ -1336,7 +1336,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                     memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
                     // Add in ratio
-                    marker.ratio = 1.0;
+                    marker.ratio = (float) vTpl[j].width / vTpl[j].height;
 
                     // Add the marker info
                     vMarker2.push_back(marker);
