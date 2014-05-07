@@ -49,6 +49,7 @@ void display() {
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
     glPushMatrix();
+    glFrontFace(GL_CW);
     acGlTextureProject((unsigned char*) frame->imageData, frame->width,
                        frame->height, frame->nChannels, 1);
 
@@ -66,7 +67,15 @@ void display() {
         glLoadMatrixd(marker.modelview);
         glRotatef(90, 1, 0, 0);
         glTranslatef(0, 0.5, 0);
-        glutSolidTeapot(1);
+
+        if (marker.match > 0) {
+            glFrontFace(GL_CW);
+            glutSolidTeapot(1);
+        } else {
+            glFrontFace(GL_CCW);
+            glutSolidCube(1);
+        }
+
 
         glDisable(GL_LIGHTING);
     }
@@ -124,7 +133,9 @@ int main(int argc, char** argv) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(640, 480);
-    glutCreateWindow("ARTest");
+    glutCreateWindow("AR");
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     glutDisplayFunc(display);
     glutReshapeFunc(reshape);
