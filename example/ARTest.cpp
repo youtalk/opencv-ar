@@ -49,7 +49,7 @@ void display() {
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_LIGHTING);
     glPushMatrix();
-    glFrontFace(GL_CW);
+    glFrontFace(GL_CCW);
     acGlTextureProject((unsigned char*) frame->imageData, frame->width,
                        frame->height, frame->nChannels, 1);
 
