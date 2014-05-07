@@ -1277,12 +1277,10 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 CvarMarker marker = { 0 }; // Important to initialise especially "match"
                 marker.id = i;
 
-                int res = 0;
                 CvPoint2D32f patPointSrc[4];
                 cvarSquare(patPointSrc, vTpl[j].width + 2, vTpl[j].height + 2, 0);
                 cvarInvertPerspective(crop, patImage, patPoint, patPointSrc);
 
-                int orient;
                 // Crop
                 CvRect croptag = cvRect(1, 1, vTpl[j].width, vTpl[j].height);
                 cvSetImageROI(patImage, croptag);
@@ -1293,15 +1291,17 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 cvThreshold(patImageg, patImageg, thresh, 1, CV_THRESH_BINARY);
 
                 // Image to bit
-                long long int bit;
+                long long int bit = 0;
                 acArray2DToBit((unsigned char*) patImageg->imageData,
                                patImageg->width, patImageg->height, &bit);
 
                 // Get orientation of the bit
-                orient = 0;
+                int orient = 0;
                 for (int k = 0; k < 4; k++) {
-                    if (bit == vTpl[j].code[k])
+                    if (bit == vTpl[j].code[k]) {
                         orient = k + 1;
+                        break;
+                    }
                 }
 
                 // Match
@@ -1327,11 +1327,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                         break;
                     }
 
-                    res = 1;
-                }
-
-                // If matched and get orientation, now compare the matched value
-                if (res) {
+                    // If matched and get orientation, now compare the matched value
                     // Matrix calculation
                     memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
