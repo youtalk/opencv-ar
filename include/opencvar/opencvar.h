@@ -69,7 +69,6 @@ struct CvarCamera {
  */
 struct CvarTemplate {
     IplImage *image[4];
-    int type; /**< 0 = ARToolKit (the pattern only), 1 = Whole image (with border), 2= ARTag */
     long long int code[4]; // For ARTag
 };
 
@@ -179,19 +178,6 @@ AC_DLL int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename);
  * @param bit    64-bit hexadecimal value
  */
 AC_DLL void cvarLoadTag(CvarTemplate* tpl, long long int bit);
-
-/**
- * @brief Free memory
- */
-AC_DLL void cvarReleaseTemplate(CvarTemplate* tpl);
-
-/**
- * @brief Binarise the template
- *
- * Based on ARToolKit algorithm, the template needs to be binarised. From my
- * experience, the grayscale image will reduce the matching result.
- */
-AC_DLL void cvarThresholdTemplate(CvarTemplate* tpl, int threshold = 100);
 
 /**
  * @brief Compare the square with the four points of the optical flow

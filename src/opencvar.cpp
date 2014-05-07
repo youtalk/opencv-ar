@@ -467,30 +467,9 @@ int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename) {
 }
 
 void cvarLoadTag(CvarTemplate* tpl, long long int bit) {
-    tpl->type = 2;
     for (int i = 0; i < 4; i++) {
         tpl->code[i] = bit;
         acBitRotate(&tpl->code[i], i);
-    }
-}
-
-/**
- * Free memory
- */
-void cvarReleaseTemplate(CvarTemplate* tpl) {
-    if (tpl->type == 2) // ARTag no template
-        return;
-    for (int i = 0; i < 4; i++) {
-        cvReleaseImage(&tpl->image[i]);
-    }
-}
-
-void cvarThresholdTemplate(CvarTemplate* tpl, int threshold) {
-    if (tpl->type == 2)
-        return;
-    for (int i = 0; i < 4; i++) {
-        cvThreshold(tpl->image[i], tpl->image[i], threshold, 255,
-                    CV_THRESH_BINARY);
     }
 }
 
@@ -815,8 +794,7 @@ int cvarArRegistration(IplImage* img, CvPoint2D32f* points, CvarTemplate tpl,
 
         // Create pattern image
         IplImage* patImage = cvCreateImage(
-                cvSize(tpl.image[0]->width, tpl.image[1]->height), IPL_DEPTH_8U,
-                3);
+                cvSize(tpl.image[0]->width, tpl.image[1]->height), IPL_DEPTH_8U, 3);
         patImage->origin = 1;
 
         if (pattern) {
@@ -1283,83 +1261,53 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         // For every template
         for (int j = 0; j < vTpl.size(); j++) {
 
-            // Different algorithm
-            if (vTpl[j].type == 0) // Find inner white square
-                pattern = cvarGetSquare(
-                        crop, cvarFindSquares(crop, patStorage, thresh, 1),
-                        patPoint);
-            else if (vTpl[j].type != 0) // Find outer black square
-                pattern = cvarGetSquare(
-                        crop, cvarFindSquares(crop, patStorage, thresh, 0),
-                        patPoint);
+            pattern = cvarGetSquare(
+                    crop, cvarFindSquares(crop, patStorage, thresh, 0), patPoint);
 
             if (pattern) {
                 // Create pattern image
-                IplImage* patImage;
-                if (vTpl[j].type != 2) // Not ARTag, ARTag must be 10x10
-                    patImage = cvCreateImage(cvGetSize(vTpl[j].image[0]), 8, 3);
-                else
-                    // ARTag
-                    patImage = cvCreateImage(cvSize(10, 10), 8, 3);
-
+                IplImage* patImage = cvCreateImage(cvSize(10, 10), 8, 3);
                 patImage->origin = 1;
 
                 CvarMarker marker = { 0 }; // Important to initialise especially "match"
                 marker.id = i;
 
                 int res = 0;
-
                 CvPoint2D32f patPointSrc[4];
-
-                // Different algorithm
-                if (vTpl[j].type == 0) { // ARToolKit
-                    cvarSquare(patPointSrc, vTpl[j].image[j]->width,
-                               vTpl[j].image[j]->height, 1);
-                } else if (vTpl[j].type == 2) { // ARTag
-                    cvarSquare(patPointSrc, 10, 10, 0);
-                } else
-                    // acAR
-                    cvarSquare(patPointSrc, vTpl[j].image[j]->width,
-                               vTpl[j].image[j]->height, 0);
-
+                cvarSquare(patPointSrc, 10, 10, 0);
                 cvarInvertPerspective(crop, patImage, patPoint, patPointSrc);
 
                 int orient;
-                if (vTpl[j].type != 2) { // Non-ARTag
-                    orient = cvarGetOrientation(patImage, vTpl[j],
-                                                &marker.match, matchThresh);
-                } else {
-                    // Crop
-                    CvRect croptag = cvRect(1, 1, 8, 8);
-                    cvSetImageROI(patImage, croptag);
+                // Crop
+                CvRect croptag = cvRect(1, 1, 8, 8);
+                cvSetImageROI(patImage, croptag);
 
-                    // Binarise
-                    IplImage* patImageg = cvCreateImage(cvGetSize(patImage), 8, 1);
-                    cvCvtColor(patImage, patImageg, CV_BGR2GRAY);
-                    cvThreshold(patImageg, patImageg, thresh, 1, CV_THRESH_BINARY);
+                // Binarise
+                IplImage* patImageg = cvCreateImage(cvGetSize(patImage), 8, 1);
+                cvCvtColor(patImage, patImageg, CV_BGR2GRAY);
+                cvThreshold(patImageg, patImageg, thresh, 1, CV_THRESH_BINARY);
 
-                    // Image to bit
-                    long long int bit;
-                    acArray2DToBit((unsigned char*) patImageg->imageData,
-                                   patImageg->width, patImageg->height, &bit);
+                // Image to bit
+                long long int bit;
+                acArray2DToBit((unsigned char*) patImageg->imageData,
+                               patImageg->width, patImageg->height, &bit);
 
-                    // Get orientation of the bit
-                    orient = 0;
-                    for (int k = 0; k < 4; k++) {
-                        if (bit == vTpl[j].code[k])
-                            orient = k + 1;
-                    }
-
-                    // Match
-                    if (orient)
-                        marker.match = 1; // So that it is the best
-                    else
-                        marker.match = 0;
-
-                    // Release
-                    cvReleaseImage(&patImageg);
-                    cvResetImageROI(patImage);
+                // Get orientation of the bit
+                orient = 0;
+                for (int k = 0; k < 4; k++) {
+                    if (bit == vTpl[j].code[k])
+                        orient = k + 1;
                 }
+
+                // Match
+                if (orient)
+                    marker.match = 1; // So that it is the best
+                else
+                    marker.match = 0;
+
+                // Release
+                cvReleaseImage(&patImageg);
+                cvResetImageROI(patImage);
 
                 // Record the current template so that later will be pushed into vector
                 marker.tpl = j;
@@ -1383,21 +1331,10 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                     memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
                     // Add in ratio
-                    if (vTpl[j].type != 2) // Non ARTag
-                        marker.ratio = (float) (vTpl[j].image[0]->width)
-                                       / vTpl[j].image[0]->height;
-                    else
-                        marker.ratio = 1;
+                    marker.ratio = 1.0;
 
                     // Add the marker info
                     vMarker2.push_back(marker);
-                }
-
-                if (AC_CV_DEBUG && vTpl[j].type != 2) {
-                    cvNamedWindow("output_d", CV_WINDOW_AUTOSIZE);
-                    cvShowImage("output_d", patImage);
-                    cvNamedWindow("template_d", CV_WINDOW_AUTOSIZE);
-                    cvShowImage("template_d", vTpl[j].image[0]);
                 }
 
                 cvReleaseImage(&patImage);
