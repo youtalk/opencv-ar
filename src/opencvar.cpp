@@ -1317,26 +1317,24 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 // Record the current template so that later will be pushed into vector
                 marker.tpl = j;
 
-                if (orient) {
-                    switch (orient) {
-                    case 4:
-                        cvarRotSquare(points, 2);
-                        break;
-                    case 2:
-                        cvarRotSquare(points, 4);
-                        break;
-                    }
-
-                    // If matched and get orientation, now compare the matched value
-                    // Matrix calculation
-                    memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
-
-                    // Add in ratio
-                    marker.ratio = (float) vTpl[j].width / vTpl[j].height;
-
-                    // Add the marker info
-                    vMarker2.push_back(marker);
+                switch (orient) {
+                case 4:
+                    cvarRotSquare(points, 2);
+                    break;
+                case 2:
+                    cvarRotSquare(points, 4);
+                    break;
                 }
+
+                // If matched and get orientation, now compare the matched value
+                // Matrix calculation
+                memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
+
+                // Add in ratio
+                marker.ratio = (float) vTpl[j].width / vTpl[j].height;
+
+                // Add the marker info
+                vMarker2.push_back(marker);
 
                 cvReleaseImage(&patImage);
             }
