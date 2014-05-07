@@ -221,7 +221,7 @@ AC_DLL void acBitToArray2D(long long int bit, unsigned char* arr, int w, int h);
  * Expected size of bit is 64-bit.
  * @param rot 1=90 degree clockwise, 2=180, 3=270
  */
-AC_DLL void acBitRotate(long long int* bit, int rot);
+AC_DLL void acBitRotate(long long int* bit, int rot, int w, int h);
 
 /** @} end mathFunc */
 

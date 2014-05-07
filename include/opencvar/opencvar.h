@@ -69,6 +69,8 @@ struct CvarCamera {
  */
 struct CvarTemplate {
     IplImage *image[4];
+    int width;
+    int height;
     long long int code[4]; // For ARTag
 };
 
@@ -177,7 +179,8 @@ AC_DLL int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename);
  *
  * @param bit    64-bit hexadecimal value
  */
-AC_DLL void cvarLoadTag(CvarTemplate* tpl, long long int bit);
+AC_DLL void cvarLoadTag(CvarTemplate* tpl, long long int bit,
+                        int width = 8, int height = 8);
 
 /**
  * @brief Compare the square with the four points of the optical flow

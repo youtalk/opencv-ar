@@ -446,7 +446,7 @@ int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename) {
     }
 
     // Crop image
-    cvSetImageROI(file, cvRect(1, 1, 8, 8));
+    cvSetImageROI(file, cvRect(1, 1, file->width - 2, file->height - 2));
 
     // Binarise
     IplImage* fileg = cvCreateImage(cvGetSize(file), 8, 1);
@@ -458,7 +458,7 @@ int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename) {
     acArray2DToBit((unsigned char*) fileg->imageData, fileg->width,
                    fileg->height, &bit);
 
-    cvarLoadTag(tpl, bit);
+    cvarLoadTag(tpl, bit, file->width - 2, file->height - 2);
 
     cvReleaseImage(&fileg);
     cvResetImageROI(file);
@@ -466,10 +466,14 @@ int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename) {
     return 1;
 }
 
-void cvarLoadTag(CvarTemplate* tpl, long long int bit) {
+void cvarLoadTag(CvarTemplate* tpl, long long int bit,
+                 int width, int height) {
+    tpl->width = width;
+    tpl->height = height;
+
     for (int i = 0; i < 4; i++) {
         tpl->code[i] = bit;
-        acBitRotate(&tpl->code[i], i);
+        acBitRotate(&tpl->code[i], i, width, height);
     }
 }
 
@@ -1266,7 +1270,8 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
             if (pattern) {
                 // Create pattern image
-                IplImage* patImage = cvCreateImage(cvSize(10, 10), 8, 3);
+                IplImage* patImage = cvCreateImage(
+                        cvSize(vTpl[j].width + 2, vTpl[j].height + 2), 8, 3);
                 patImage->origin = 1;
 
                 CvarMarker marker = { 0 }; // Important to initialise especially "match"
@@ -1274,12 +1279,12 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
                 int res = 0;
                 CvPoint2D32f patPointSrc[4];
-                cvarSquare(patPointSrc, 10, 10, 0);
+                cvarSquare(patPointSrc, vTpl[j].width + 2, vTpl[j].height + 2, 0);
                 cvarInvertPerspective(crop, patImage, patPoint, patPointSrc);
 
                 int orient;
                 // Crop
-                CvRect croptag = cvRect(1, 1, 8, 8);
+                CvRect croptag = cvRect(1, 1, vTpl[j].width, vTpl[j].height);
                 cvSetImageROI(patImage, croptag);
 
                 // Binarise
