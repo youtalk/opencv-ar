@@ -68,7 +68,6 @@ struct CvarCamera {
  * @brief Data structure to store the 4 orientation template
  */
 struct CvarTemplate {
-    IplImage *image[4];
     int width;
     int height;
     long long int code[4];
@@ -225,22 +224,6 @@ AC_DLL void cvarInvertPerspective(IplImage* input, IplImage* output,
                                   CvPoint2D32f* src, CvPoint2D32f* dst);
 
 /**
- * @brief Get the orientation of the template
- * Remember that the detection is from left to right, bottom to up.
- * Note: If the pattern left-bottom vertex is detected first, then the return value
- * is 1. If the right-bottom vertex is detected first, then the return value is 4
- * @param input    The input image which has the same size of the template
- * @param tpl    The template with four orientation
- * @param match [out]    Template matching value
- * @param thres    Threshold for the sum of square different normalised. If don't want
- * get result, use NULL
- * @return    If match, > 0; else 0. 1 for 1st template, 2 for 2nd, ...
- */
-AC_DLL int cvarGetOrientation(IplImage* input, CvarTemplate tpl, double* match =
-        NULL,
-                              double thres = 0.98);
-
-/**
  * @brief From the points of the square to OpenGL model view matrix
  * @param points    Points of the square
  * @param cam    Camera
@@ -249,18 +232,6 @@ AC_DLL int cvarGetOrientation(IplImage* input, CvarTemplate tpl, double* match =
  */
 AC_DLL void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
                                double* modelview, float ratio = 1);
-
-/**
- * @brief Calculate the model view matrix from square of the image.
- * @param img    Image
- * @param points [out]    4 points of the square
- * @param matchThresh    Template matching thresholding value, range: [0,1]
- * @param draw    Draw detected square
- * @return 1 if found, else 0
- */
-AC_DLL int cvarArRegistration(IplImage* img, CvPoint2D32f* points,
-                              CvarTemplate tpl, int thresh = 100,
-                              double matchThresh = 0.98);
 
 /**
  * @brief Enable debug mode
@@ -284,13 +255,6 @@ CvRect cvarSquare2Rect(CvPoint2D32f pt[4]);
  * @return Number of squares
  */
 int cvarGetAllSquares(CvSeq* squares, vector<CvPoint2D32f>* pts);
-
-/**
- * @brief This is prototype for multiple marker registration without tracking
- */
-int cvarArMultRegNoTrack(IplImage* img, vector<CvarMarker>* vMarker,
-                         vector<CvarTemplate> vTpl, CvarCamera* cam, int thresh,
-                         double matchThresh);
 
 /**
  * @brief Tracking, check the relationship between two square points
@@ -318,129 +282,3 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 } // extern
 
 /** @} end functionList */
-
-/*********
- Optical flow
- ************/
-class AC_DLL CvarOpticalFlow {
-public:
-    CvarOpticalFlow();
-    virtual ~CvarOpticalFlow();
-
-    /**
-     * @brief Initialise with the image size and number of points
-     * @param nPoint    Number of points
-     */
-    void Init(IplImage* img, int nPoint, CvPoint2D32f* pts);
-
-    /**
-     * @brief Destroy
-     */
-    void Destroy();
-
-    /**
-     * @brief Update with the image and number of points
-     * @param nPoint    Number of points
-     * @param pts    [out] Points
-     */
-    int Update(IplImage* img, int nPoint, CvPoint2D32f* pts, int draw = 0);
-
-    IplImage *grey, *prevGrey, *pyramid, *prevPyramid, *swapTemp;
-    CvPoint2D32f *points[2], *swapPoints;
-    int flags;
-    char* status;
-
-private:
-    int m_bInit;
-};
-
-/***************
- AR
- **************/
-
-/**
- * AR class
- */
-class AC_DLL CvarAr {
-public:
-    CvarAr();
-    virtual ~CvarAr();
-
-    /**
-     * @brief Load template file
-     *
-     * When: Beginning
-     * @param filename    Filename of the template
-     * @return 1 = sucess, 0 = fail
-     */
-    int LoadTemplateTag(char* filename);
-
-    /**
-     * @brief Load camera parameter
-     *
-     * When: Beginning
-     * @param filename    Filename of the camera data
-     * @return 1 = success, 0 = fail
-     */
-    int LoadCamera(char* filename);
-
-    /**
-     * @brief Resize camera parameter based on the camera size
-     *
-     * When: Beginning
-     * @param width    Width of the new camera
-     * @param height     Height of the new camera
-     */
-    void ResizeCamera(int width, int height);
-
-    /**
-     * @brief Get OpenGL projection matrix
-     *
-     * When: Reize callback
-     */
-    void GetGlProjection(double* projection);
-
-    /**
-     * @brief Detect the marker and get the model view matrix for OpenGL
-     * @param imageData    Pointer to the image data
-     * @param width    Width of the image
-     * @param height    Height of the image
-     * @param modelview    [out] Model view matrix
-     * @param thresh    Threshold value for the image processing
-     * @param matchThresh    Threshold value for the template matching, range [0,1]
-     */
-    void DetectMarker(unsigned char* imageData, int width, int height,
-                      double* modelview, int thresh = 100,
-                      double matchThresh = 0.98);
-
-    /**
-     * @brief Another algorithm for marker detection for lighting problem
-     * @param imageData    Pointer to the image data
-     * @param width    Width of the image
-     * @param height    Height of the image
-     * @param modelview    [out] Model view matrix
-     * @param thresh    Threshold value for the image processing
-     * @param matchThresh    Threshold value for the template matching, range [0,1]
-     */
-    void DetectMarkerLight(unsigned char* imageData, int width, int height,
-                           double *modelview, int thresh = 100,
-                           double matchThresh = 0.98);
-
-    /**
-     * @brief Get the detected state
-     *
-     * When: Before draw AR object
-     * @return    0 if no marker detected, else 1.
-     */
-    int GetState();
-
-    CvarCamera* GetCamera();
-    CvarTemplate* getTemplate();
-
-private:
-    CvarTemplate marker;
-    CvarCamera camera;
-    CvarOpticalFlow *flow;
-
-    int state;
-};
