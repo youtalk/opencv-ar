@@ -269,79 +269,6 @@ void acGlPrintGet(GLenum pname) {
     }
 }
 
-// For picking or selection, the projection and modelview are defined outside the
-// function, so that, it is able to be used in custom environment
-int acGlSelect(int x, int y, double* projection, double* modelview,
-               void (*draw)()) {
-    GLuint buffer[512] = { 0 }; // For selection, initialise
-    glSelectBuffer(512, buffer);
-
-    // Change the GL_RENDER mode to GL_SELECT, therefore, the projection need to be
-    // set to the same as the GL_RENDER
-    (void) glRenderMode(GL_SELECT);
-
-    // From NeHe lesson 32
-    glInitNames();
-    glPushName(0); // This only works in GL_SELECT mode, this statement must exist
-
-    //{ Matrix setting for GL_PROJECTION
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix(); // Must push matrix, so that the setting will not affect the display
-    glLoadIdentity();
-
-    GLint viewport[4];
-    glGetIntegerv(GL_VIEWPORT, viewport);
-
-    gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), 1, 1, viewport);
-
-    glMultMatrixd(projection);
-
-    // This part is draw the object which can be selected. However, this
-    // draw will only draw in memory, not displayed, therefore, the
-    // display looping must draw the same object so that the user can see them
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    glMultMatrixd(modelview);
-
-    // this->DrawTree();
-    draw();
-
-    glPopMatrix();
-
-    // This is only want to pop the projection matrix
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    //}end projection
-
-    // Change back to MODELVIEW
-    glMatrixMode(GL_MODELVIEW);
-
-    GLint hits;
-    hits = glRenderMode(GL_RENDER); // Return the hits of GL_SELECT mode
-
-    // Loop through the buffer using ptr, because the number of names in the stack
-    // will cause the different number of names occured
-    GLuint nNames, *ptr; // Number of names and ptr
-    ptr = buffer;
-
-    int choose = buffer[3]; // This is to store which object is selected
-    int depth = buffer[1];
-
-    if (hits > 0) {
-
-        // cout<<"Number of hit: "<<hits<<endl;
-        for (int i = 0; i < hits; i++) {
-            if (buffer[i * 4 + 1] < GLuint(depth)) { // Select the front object
-            // But in gluPerspective(), the z is almost same
-                choose = buffer[i * 4 + 3];
-                depth = buffer[i * 4 + 1];
-            }
-        }
-    }
-    return choose;
-}
-
 void acGlTextureProject(void* buffer, int width, int height, int depth,
                         int swap) {
     if (depth != 3 && depth != 4)
@@ -430,9 +357,9 @@ int acGlProcessHit(GLint hits, GLuint buffer[]) {
     return choose;
 }
 
-int acGlSelect2(int x, int y, int width, int height, double* projection,
-                double* modelview, void (*draw)(),
-                int (*processHit)(GLint hit, GLuint buffer[])) {
+int acGlSelect(int x, int y, int width, int height, double* projection,
+               double* modelview, void (*draw)(),
+               int (*processHit)(GLint hit, GLuint buffer[])) {
     GLuint buffer[512] = { 0 }; // For selection, initialise
     glSelectBuffer(512, buffer);
 

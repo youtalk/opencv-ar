@@ -300,8 +300,7 @@ void cvarFindCamera(CvarCamera* cam, CvMat* objPts, CvMat* imgPts,
     CvMat* rotate3 = cvCreateMat(3, 3, CV_64F);
     CvMat* translate = cvCreateMat(1, 3, CV_64F);
 
-    cvFindExtrinsicCameraParams2(objPts, imgPts, &camera, &dist, rotate,
-                                 translate);
+    cvFindExtrinsicCameraParams2(objPts, imgPts, &camera, &dist, rotate, translate);
     cvRodrigues2(rotate, rotate3);
 
     cvarGlMatrix(modelview, rotate3, translate);

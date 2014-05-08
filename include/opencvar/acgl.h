@@ -34,9 +34,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  * @author    Allen
  * @date    20080904
  * @version    0.1.0
- *
- * @deprecated acGlSelect()
- * Superceded by acGlSelect2()
  */
 
 #pragma once
@@ -74,23 +71,6 @@ AC_DLL void acGlTexture(unsigned char* data, int width, int height, int depth,
  */
 AC_DLL void acGlTextureProject(void* buffer, int width, int height, int depth,
                                int swap = 0);
-
-/**
- * @brief Selection/picking
- *
- * For picking or selection, the projection and modelview are defined outside the
- * function, so that, it is able to be used in custom environment <br>
- * Note that, glLoadName() is needed in the draw() callback function so that the value
- * of the "name" will be returned.
- * @param x    Coordinate-x
- * @param y Coordinate-y
- * @param projection    OpenGL projection matrix
- * @param modelview    OpenGL modelview matrix
- * @param draw    Callback function to draw the selectable/pickable object
- * @return Return the "name" of the object, if no object selected, return 0.
- */
-AC_DLL int acGlSelect(int x, int y, double* projection, double* modelview,
-                      void (*draw)());
 
 /**
  * Not sure it will work in all windows or not
@@ -140,22 +120,9 @@ AC_DLL int acGlProcessHit(GLint hits, GLuint buffer[]);
  * @param processHit    Callback function
  * @return If nothing, return -1
  */
-AC_DLL int acGlSelect2(
+AC_DLL int acGlSelect(
         int x, int y, int width, int height, double* projection,
         double* modelview, void (*draw)(),
-        int (*processHit)(GLint hit, GLuint buffer[]) = acGlProcessHit);
-
-/**
- * @brief Select OpenGL matrix in double
- * @param processHit    Callback function
- * @param viewport    If want get self-defined viewport
- * @param inverse    Inverse the y-coordinate
- * @return If nothing, return -1
- */
-AC_DLL int acGlSelectd(
-        int x, int y, int width, int height, double* projection,
-        double* modelview, void (*draw)(), GLint viewport[4] = 0, int inverse =
-                0,
         int (*processHit)(GLint hit, GLuint buffer[]) = acGlProcessHit);
 
 /**
@@ -167,33 +134,3 @@ AC_DLL int acGlIsOccluded(double objX, double objY, double objZ);
 } // extern
 
 /** @} end group */
-
-/**************
- Object font
- **************/
-
-/**
- * @brief WGL bitmap font
- */
-class AC_DLL acWglFont {
-public:
-    acWglFont();
-    virtual ~acWglFont();
-
-    /**
-     * @brief Initialization
-     */
-    void init(char* szWindow, char* szTypeface, int size = 12, int bold = 0,
-              int italic = 0, int underline = 0, int strikeout = 0);
-
-    void print(const char* str, ...);
-    void printMulti(int height, const char* str, ...);
-
-    int isInit();
-    void destroy();
-
-private:
-    char* m_szWindow;
-    GLuint m_uBase;
-    int m_bInit;
-};
