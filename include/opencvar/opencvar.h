@@ -70,6 +70,7 @@ struct CvarCamera {
 struct CvarTemplate {
     int width;
     int height;
+    double size;
     long long int code[4];
 };
 
@@ -165,12 +166,13 @@ AC_DLL void cvarFindCamera(CvarCamera* cam, CvMat* objPts, CvMat* imgPts,
  ****************/
 
 /**
- * @brief Load template image, 10x10 size, and convert to ARTag
+ * @brief Load template image and convert to ARTag
  *
  * This function will call cvarLoadTag()
  * @param filename    Image file
  */
-AC_DLL int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename);
+AC_DLL int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename,
+                               double size = 20.0);
 
 /**
  * @brief Load the tag information like ARTag
@@ -178,7 +180,7 @@ AC_DLL int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename);
  * @param bit    64-bit hexadecimal value
  */
 AC_DLL void cvarLoadTag(CvarTemplate* tpl, long long int bit,
-                        int width = 8, int height = 8);
+                        int width = 8, int height = 8, double size = 20.0);
 
 /**
  * @brief Compare the square with the four points of the optical flow

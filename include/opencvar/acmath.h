@@ -99,6 +99,7 @@ AC_DLL float acDeg2Rad(float deg);
  * according to OpenGL matrix
  */
 AC_DLL void acMatrixRotate(float deg, float x, float y, float z, float *m);
+AC_DLL void acMatrixRotated(double deg, double x, double y, double z, double *m);
 AC_DLL void acMatrixTranslate(float x, float y, float z, float *m);
 AC_DLL void acMatrixScale(float x, float y, float z, float *m);
 AC_DLL void acMatrixIdentity(float *m);
@@ -108,18 +109,16 @@ AC_DLL void acMatrixIdentity(float *m);
  * Therefore, m1 and m2 should be row-majored matrix
  */
 AC_DLL float acMatrixDotProduct(float *m1, float *m2, int col, int row);
+AC_DLL float acMatrixDotProductd(double *m1, double *m2, int col, int row);
 
 /**
  * Based on row-majored matrix
  * m1, m2 and mOut should be row-majored
  */
 AC_DLL void acMatrixMultiply(float *m1, float *m2, float *mOut);
+AC_DLL void acMatrixMultiplyd(double *m1, double *m2, double *mOut);
 AC_DLL void acMatrixPrint(float *m);
 AC_DLL void acMatrixTranspose(float *m);
-
-/**
- * Transpose matrix in double type
- */
 AC_DLL void acMatrixTransposed(double* m);
 
 /**

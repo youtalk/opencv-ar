@@ -131,6 +131,40 @@ void acMatrixRotate(float deg, float x, float y, float z, float *m) {
     acMatrixMultiply(temp, m, m);
 }
 
+void acMatrixRotated(double deg, double x, double y, double z, double *m) {
+    // This coding is according to the calculation of OpenGL, therefore the output matrix is also
+    // according to OpenGL matrix
+
+    double temp[16];
+    double c = cos(acDeg2Rad(deg));
+    double s = sin(acDeg2Rad(deg));
+
+    // Normalise the x,y,z
+    double mag = sqrt(x * x + y * y + z * z);
+    x = x / mag;
+    y = y / mag;
+    z = z / mag;
+
+    temp[0] = (x * x * (1 - c)) + c;
+    temp[4] = (x * y * (1 - c)) - (z * s);
+    temp[8] = (x * z * (1 - c)) + (y * s);
+    temp[12] = 0;
+    temp[1] = (y * x * (1 - c)) + (z * s);
+    temp[5] = (y * y * (1 - c)) + c;
+    temp[9] = (y * z * (1 - c)) - (x * s);
+    temp[13] = 0;
+    temp[2] = (x * z * (1 - c)) - (y * s);
+    temp[6] = (y * z * (1 - c)) + (x * s);
+    temp[10] = (z * z * (1 - c)) + c;
+    temp[14] = 0;
+    temp[3] = 0;
+    temp[7] = 0;
+    temp[11] = 0;
+    temp[15] = 1;
+
+    acMatrixMultiplyd(temp, m, m);
+}
+
 void acMatrixTranslate(float x, float y, float z, float *m) {
     float temp[16];
 
@@ -198,6 +232,17 @@ float acMatrixDotProduct(float *m1, float *m2, int col, int row) {
     return ret;
 }
 
+float acMatrixDotProductd(double *m1, double *m2, int col, int row) {
+    // Dot product base on row-majored matrix
+    // Therefore, m1 and m2 should be row-majored matrix
+
+    double ret = 0;
+    for (int i = 0; i < 4; i++) {
+        ret += m1[row * 4 + i] * m2[i * 4 + col];
+    }
+    return ret;
+}
+
 void acMatrixMultiply(float *m1, float *m2, float *mOut) {
     // Based on row-majored matrix
     // m1, m2 and mOut should be row-majored
@@ -209,6 +254,19 @@ void acMatrixMultiply(float *m1, float *m2, float *mOut) {
         }
     }
     memcpy(mOut, temp, 16 * sizeof(float));
+}
+
+void acMatrixMultiplyd(double *m1, double *m2, double *mOut) {
+    // Based on row-majored matrix
+    // m1, m2 and mOut should be row-majored
+    double temp[16]; // Must use the temporary, because if the address of mOut is same
+    // as m1 or m2, the DotProduct value will be altered.
+    for (int j = 0; j < 4; j++) {
+        for (int i = 0; i < 4; i++) {
+            temp[j * 4 + i] = acMatrixDotProductd(m1, m2, i, j);
+        }
+    }
+    memcpy(mOut, temp, 16 * sizeof(double));
 }
 
 void acMatrixPrint(float *m) {
