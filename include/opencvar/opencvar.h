@@ -274,12 +274,9 @@ int cvarTrack(CvPoint2D32f pt1[4], CvPoint2D32f pt2[4]);
  * @param vMarker    Vector of marker, which will be stored with the marker information
  * @param vTemplate    Vector of template for template matching
  * @param cam    Camera data
- * @param thresh    Theshold value for binarisation. Can receive AC_THRESH_AUTO for auto-thresholding
- * @param matchThresh    Theshold value for template matching in range [0,1]
  */
 int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
-                           vector<CvarTemplate> vTpl, CvarCamera* cam,
-                           int thresh, double matchThresh);
+                           vector<CvarTemplate> vTpl, CvarCamera* cam);
 
 } // extern
 

@@ -53,8 +53,7 @@ void display() {
     acGlTextureProject((unsigned char*) frame->imageData, frame->width,
                        frame->height, frame->nChannels, 1);
 
-    cvarArMultRegistration(frame, &markers, templates, &camera,
-                           AC_THRESH_AUTO, 0.8);
+    cvarArMultRegistration(frame, &markers, templates, &camera);
 
     glClear(GL_DEPTH_BUFFER_BIT);
     glMatrixMode(GL_MODELVIEW);

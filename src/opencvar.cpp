@@ -693,22 +693,7 @@ int cvarTrack(CvPoint2D32f pt1[4], CvPoint2D32f pt2[4]) {
 }
 
 int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
-                           vector<CvarTemplate> vTpl, CvarCamera* cam,
-                           int thresh, double matchThresh) {
-    // Auto thresholding
-    int autothresh = 0;
-    if (thresh == AC_THRESH_AUTO) {
-        autothresh = 1;
-        if (g_needRandom) {
-            if (g_isRandom == 0) {
-                srand(time(NULL));
-                g_isRandom = 1;
-            }
-            g_thresh = rand() % 256;
-        }
-        thresh = g_thresh;
-    }
-
+                           vector<CvarTemplate> vTpl, CvarCamera* cam) {
     CvMemStorage* patStorage = cvCreateMemStorage();
 
     // Grayscaling
@@ -722,7 +707,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
     CvMemStorage* squareStorage = cvCreateMemStorage();
     vector<CvPoint2D32f> vPts;
     int nSquare = cvarGetAllSquares(
-            cvarFindSquares(img, squareStorage, thresh, 0), &vPts);
+            cvarFindSquares(img, squareStorage, 128, 0), &vPts);
 
     // Checking for previous marker square
     vector<int> reserve; // For reserving the previous data
@@ -794,7 +779,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         for (int j = 0; j < vTpl.size(); j++) {
 
             pattern = cvarGetSquare(
-                    crop, cvarFindSquares(crop, patStorage, thresh, 0), patPoint);
+                    crop, cvarFindSquares(crop, patStorage, 128, 0), patPoint);
 
             if (pattern) {
                 // Create pattern image
@@ -816,7 +801,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 // Binarise
                 IplImage* patImageg = cvCreateImage(cvGetSize(patImage), 8, 1);
                 cvCvtColor(patImage, patImageg, CV_BGR2GRAY);
-                cvThreshold(patImageg, patImageg, thresh, 1, CV_THRESH_BINARY);
+                cvThreshold(patImageg, patImageg, 128, 1, CV_THRESH_BINARY);
 
                 // Image to bit
                 long long int bit = 0;
@@ -898,15 +883,6 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
     cvReleaseMemStorage(&patStorage);
     cvReleaseMemStorage(&squareStorage);
-
-    // Auto threshold
-    if (autothresh) {
-        if (vMarker->size()) {
-            g_needRandom = 0;
-        } else {
-            g_needRandom = 1;
-        }
-    }
 
     return vMarker->size();
 }
