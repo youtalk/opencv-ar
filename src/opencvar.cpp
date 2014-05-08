@@ -41,33 +41,25 @@ int cvarReadCamera(const char* filename, CvarCamera* pCam) {
     if (!filename) {
         pCam->width = 320;
         pCam->height = 240;
-        pCam->flags = 0;
 
-        pCam->avg_error = 0;
         double mat[] = { 350, 0, 160, 0, 350, 120, 0, 0, 1 };
         memcpy(pCam->matrix, mat, sizeof(double) * 9);
 
-        double distort[] = { 0, 0, 0, 0 };
-        memcpy(pCam->distortion, distort, sizeof(double) * 4);
+        double distort[] = { 0, 0, 0, 0, 0 };
+        memcpy(pCam->distortion, distort, sizeof(double) * 5);
     } else {
         CvFileStorage* file = cvOpenFileStorage(filename, 0, CV_STORAGE_READ);
         if (!file)
             return 0;
 
-        pCam->width = cvReadIntByName(file, 0, "image_width");
-        pCam->height = cvReadIntByName(file, 0, "image_height");
-        pCam->flags = cvReadIntByName(file, 0, "flags");
-
-        pCam->avg_error = cvReadRealByName(file, 0, "avg_reprojection_error");
-
         CvMat* camera = (CvMat*) cvRead(
-                file, cvGetFileNodeByName(file, 0, "camera_matrix"));
+                file, cvGetFileNodeByName(file, 0, "cameraMatrix"));
         // Copy camera matrix
         memcpy(pCam->matrix, camera->data.db, sizeof(double) * 9);
 
         CvMat* distortion = (CvMat*) cvRead(
-                file, cvGetFileNodeByName(file, 0, "distortion_coefficients"));
-        memcpy(pCam->distortion, distortion->data.db, sizeof(double) * 4);
+                file, cvGetFileNodeByName(file, 0, "distCoeffs"));
+        memcpy(pCam->distortion, distortion->data.db, sizeof(double) * 5);
 
         cvReleaseFileStorage(&file);
     }
@@ -294,7 +286,7 @@ void cvarReverseSquare(CvPoint2D32f sq[4]) {
 void cvarFindCamera(CvarCamera* cam, CvMat* objPts, CvMat* imgPts,
                     double* modelview) {
     CvMat camera = cvMat(3, 3, CV_64F, cam->matrix);
-    CvMat dist = cvMat(1, 4, CV_64F, cam->distortion);
+    CvMat dist = cvMat(1, 5, CV_64F, cam->distortion);
 
     CvMat* rotate = cvCreateMat(1, 3, CV_64F);
     CvMat* rotate3 = cvCreateMat(3, 3, CV_64F);
