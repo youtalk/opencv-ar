@@ -188,7 +188,7 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
     // find squares in every color plane of the image
     for (c = 0; c < 1; c++) {
         // extract the c-th color plane
-        // Convert the image to greyscale
+        // Convert the image to grayscale
         cvCvtColor(timg, tgray, CV_BGR2GRAY);
 
         // try several threshold levels
@@ -711,12 +711,12 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
     CvMemStorage* patStorage = cvCreateMemStorage();
 
-    // Greyscaling
-    IplImage* grey = cvCreateImage(cvSize(img->width, img->height), 8, 1);
-    cvCvtColor(img, grey, CV_BGR2GRAY);
-    // cvThreshold(grey,grey,100,255,CV_THRESH_BINARY);
-    cvCvtColor(grey, img, CV_GRAY2BGR);
-    cvReleaseImage(&grey);
+    // Grayscaling
+    IplImage* gray = cvCreateImage(cvSize(img->width, img->height), 8, 1);
+    cvCvtColor(img, gray, CV_BGR2GRAY);
+    // cvThreshold(gray, gray, 100, 255, CV_THRESH_BINARY);
+    cvCvtColor(gray, img, CV_GRAY2BGR);
+    cvReleaseImage(&gray);
 
     // Find all squares
     CvMemStorage* squareStorage = cvCreateMemStorage();
