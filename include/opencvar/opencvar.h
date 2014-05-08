@@ -236,13 +236,6 @@ AC_DLL void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
                                double* modelview, double ratio = 1);
 
 /**
- * @brief Enable debug mode
- *
- * To display some detailed information for debugging
- */
-AC_DLL void cvarEnableDebug();
-
-/**
  * @brief Convert square points to rectangle for cropping
  * @return The rectangle
  */

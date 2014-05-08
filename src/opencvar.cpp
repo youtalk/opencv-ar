@@ -36,8 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
-int AC_CV_DEBUG = 0;
-
 int cvarReadCamera(const char* filename, CvarCamera* pCam) {
     // Use default value
     if (!filename) {
@@ -191,12 +189,6 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
         // Modified: using only one threshold value
         for (l = 0; l < 1; l++) {
             cvThreshold(tgray, gray, threshold, 255, CV_THRESH_BINARY);
-
-            if (AC_CV_DEBUG) {
-                gray->origin = 1;
-                cvNamedWindow("find_d", CV_WINDOW_AUTOSIZE);
-                cvShowImage("find_d", gray);
-            }
 
             // find contours and store them all as a list
             cvFindContours(gray, storage, &contours, sizeof(CvContour),
@@ -485,10 +477,6 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
         res++;
     }
 
-    if (AC_CV_DEBUG) {
-        cvNamedWindow("square_d", CV_WINDOW_AUTOSIZE);
-        cvShowImage("square_d", cpy);
-    }
     cvReleaseImage(&cpy);
 
     return res;
@@ -602,13 +590,6 @@ void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
 
     cvReleaseMat(&imgPoint);
     cvReleaseMat(&objPoint);
-}
-
-/*************
- Debug
- ************/
-void cvarEnableDebug() {
-    AC_CV_DEBUG = 1;
 }
 
 /*************

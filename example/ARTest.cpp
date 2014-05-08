@@ -114,7 +114,6 @@ int main(int argc, char** argv) {
     if (argc < 3)
         return -1;
 
-    cvarEnableDebug();
     capture = cvCreateCameraCapture(atoi(argv[1]));
     if (!capture) {
         std::cerr << "Create camera capture failed" << std::endl;
