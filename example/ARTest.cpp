@@ -90,7 +90,7 @@ void reshape(int width, int height) {
 
     double projection[16];
     cvarCameraProjection(&camera, projection);
-    acMatrixTransposed(projection);
+    acMatrixTranspose(projection);
     glLoadMatrixd(projection);
 
     glMatrixMode(GL_MODELVIEW);

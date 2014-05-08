@@ -58,8 +58,8 @@ struct AcPointi {
  * Same as above
  */
 struct AcPointf {
-    float x;
-    float y;
+    double x;
+    double y;
 };
 
 extern "C" {
@@ -71,10 +71,10 @@ extern "C" {
  * @{
  */
 
-AC_DLL void acVectorPrint(float *v);
-AC_DLL void acVectorAdd(float *v1, float *v2, float *vOut);
-AC_DLL void acVectorDeduct(float *v1, float *v2, float *vOut);
-AC_DLL void acVectorCrossProduct(float *v1, float *v2, float *product);
+AC_DLL void acVectorPrint(double *v);
+AC_DLL void acVectorAdd(double *v1, double *v2, double *vOut);
+AC_DLL void acVectorDeduct(double *v1, double *v2, double *vOut);
+AC_DLL void acVectorCrossProduct(double *v1, double *v2, double *product);
 
 /**
  * Description:
@@ -82,44 +82,40 @@ AC_DLL void acVectorCrossProduct(float *v1, float *v2, float *product);
  * They are input value.
  * "normal" will be the output value. It must be a vector with x,y,z also
  */
-AC_DLL void acVectorNormal(float *v1, float *v2, float *v3, float *normal);
-AC_DLL float acVectorMagnitude(float *v);
-AC_DLL void acVectorNormalise(float *vIn, float *vOut);
+AC_DLL void acVectorNormal(double *v1, double *v2, double *v3, double *normal);
+AC_DLL double acVectorMagnitude(double *v);
+AC_DLL void acVectorNormalise(double *vIn, double *vOut);
 
 /**
  * Get the normalised normal
  */
-AC_DLL void acVectorNormal2(float *v1, float *v2, float *v3, float *nv);
+AC_DLL void acVectorNormal2(double *v1, double *v2, double *v3, double *nv);
 
-AC_DLL float acRad2Deg(float rad);
-AC_DLL float acDeg2Rad(float deg);
+AC_DLL double acRad2Deg(double rad);
+AC_DLL double acDeg2Rad(double deg);
 
 /**
  * This coding is according to the calculation of OpenGL, therefore the output matrix is also 
  * according to OpenGL matrix
  */
-AC_DLL void acMatrixRotate(float deg, float x, float y, float z, float *m);
-AC_DLL void acMatrixRotated(double deg, double x, double y, double z, double *m);
-AC_DLL void acMatrixTranslate(float x, float y, float z, float *m);
-AC_DLL void acMatrixScale(float x, float y, float z, float *m);
-AC_DLL void acMatrixIdentity(float *m);
+AC_DLL void acMatrixRotate(double deg, double x, double y, double z, double *m);
+AC_DLL void acMatrixTranslate(double x, double y, double z, double *m);
+AC_DLL void acMatrixScale(double x, double y, double z, double *m);
+AC_DLL void acMatrixIdentity(double *m);
 
 /**
  * Dot product base on row-majored matrix
  * Therefore, m1 and m2 should be row-majored matrix
  */
-AC_DLL float acMatrixDotProduct(float *m1, float *m2, int col, int row);
-AC_DLL float acMatrixDotProductd(double *m1, double *m2, int col, int row);
+AC_DLL double acMatrixDotProduct(double *m1, double *m2, int col, int row);
 
 /**
  * Based on row-majored matrix
  * m1, m2 and mOut should be row-majored
  */
-AC_DLL void acMatrixMultiply(float *m1, float *m2, float *mOut);
-AC_DLL void acMatrixMultiplyd(double *m1, double *m2, double *mOut);
-AC_DLL void acMatrixPrint(float *m);
-AC_DLL void acMatrixTranspose(float *m);
-AC_DLL void acMatrixTransposed(double* m);
+AC_DLL void acMatrixMultiply(double *m1, double *m2, double *mOut);
+AC_DLL void acMatrixPrint(double *m);
+AC_DLL void acMatrixTranspose(double *m);
 
 /**
  * The algorithm come from http://www.j3d.org/matrix_faq/matrfaq_latest.html
@@ -148,14 +144,14 @@ AC_DLL double acCalcLength(AcPointf pt1, AcPointf pt2);
  *
  * From http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
  */
-AC_DLL void acMatrix4Invert(float m[]);
+AC_DLL void acMatrix4Invert(double m[]);
 
 /**
  * @brief Get determinant of 4x4 matrix
  *
  ** From http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
  */
-AC_DLL float acMatrix4GetDeterminant(float m[]);
+AC_DLL double acMatrix4GetDeterminant(double m[]);
 
 /**
  * @brief decompose the 4x4 matrix
@@ -166,7 +162,7 @@ AC_DLL float acMatrix4GetDeterminant(float m[]);
  * @param s    [out] Scale 3x1 vector
  * @param r    [out] Rotation 4x4 matrix
  */
-AC_DLL void acMatrixDecompose(float m[], float t[], float s[], float r[]);
+AC_DLL void acMatrixDecompose(double m[], double t[], double s[], double r[]);
 
 /************
  Bit operation and 2D square array, related to image processing

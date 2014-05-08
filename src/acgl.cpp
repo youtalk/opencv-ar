@@ -69,9 +69,9 @@ void acGlTexture(unsigned char* data, int width, int height, int depth,
 
     delete[] blank_t;
 
-    float u_rt, v_rt;
-    u_rt = (float) width / 1024;
-    v_rt = (float) height / 1024;
+    double u_rt, v_rt;
+    u_rt = (double) width / 1024;
+    v_rt = (double) height / 1024;
 
     if (depth == 4)
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA,
@@ -85,13 +85,13 @@ void acGlTexture(unsigned char* data, int width, int height, int depth,
 
     glBegin(GL_QUADS);
     glTexCoord2f(0, 0);
-    glVertex3f(-(float) width / height, -1, 0);
+    glVertex3f(-(double) width / height, -1, 0);
     glTexCoord2f(u_rt, 0);
-    glVertex3f((float) width / height, -1, 0);
+    glVertex3f((double) width / height, -1, 0);
     glTexCoord2f(u_rt, v_rt);
-    glVertex3f((float) width / height, 1, 0);
+    glVertex3f((double) width / height, 1, 0);
     glTexCoord2f(0, v_rt);
-    glVertex3f(-(float) width / height, 1, 0);
+    glVertex3f(-(double) width / height, 1, 0);
     glEnd();
 
     glDeleteTextures(1, texid);
@@ -113,70 +113,70 @@ void acGlGetWindowSize(int* width, int* height) {
     *height = rasterPos[1] * 2;
 }
 
-float acGlPixelRasterRatioX() {
+double acGlPixelRasterRatioX() {
     glRasterPos2f(0, 0);
 
-    float rasterPos[4];
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, rasterPos);
+    double rasterPos[4];
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, rasterPos);
 
     glRasterPos2f(1, 0);
-    float rasterPos2[4];
+    double rasterPos2[4];
 
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, rasterPos2);
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, rasterPos2);
 
     return (rasterPos2[0] - rasterPos[0]);
 }
 
-float acGlPixelRasterRatioY() {
+double acGlPixelRasterRatioY() {
     glRasterPos2f(0, 0);
 
-    float rasterPos[4];
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, rasterPos);
+    double rasterPos[4];
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, rasterPos);
 
     glRasterPos2f(0, 1);
-    float rasterPos2[4];
+    double rasterPos2[4];
 
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, rasterPos2);
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, rasterPos2);
 
     return (rasterPos2[1] - rasterPos[1]);
 }
 
-float acGlPixel2RasterX(float input) {
-    float ratio = acGlPixelRasterRatioX();
+double acGlPixel2RasterX(double input) {
+    double ratio = acGlPixelRasterRatioX();
 
     // Get the middle
     glRasterPos2f(0, 0);
-    float raster[4];
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
+    double raster[4];
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, raster);
 
     return (input - raster[0]) / ratio;
 }
-float acGlRaster2PixelX(float input) {
-    float ratio = acGlPixelRasterRatioX();
+double acGlRaster2PixelX(double input) {
+    double ratio = acGlPixelRasterRatioX();
 
     glRasterPos2f(0, 0);
-    float raster[4];
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
+    double raster[4];
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, raster);
 
     return raster[0] + input * ratio;
 }
 
-float acGlPixel2RasterY(float input) {
-    float ratio = acGlPixelRasterRatioY();
+double acGlPixel2RasterY(double input) {
+    double ratio = acGlPixelRasterRatioY();
 
     // Get the middle
     glRasterPos2f(0, 0);
-    float raster[4];
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
+    double raster[4];
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, raster);
 
     return (input - raster[1]) / ratio;
 }
-float acGlRaster2PixelY(float input) {
-    float ratio = acGlPixelRasterRatioY();
+double acGlRaster2PixelY(double input) {
+    double ratio = acGlPixelRasterRatioY();
 
     glRasterPos2f(0, 0);
-    float raster[4];
-    glGetFloatv(GL_CURRENT_RASTER_POSITION, raster);
+    double raster[4];
+    glGetDoublev(GL_CURRENT_RASTER_POSITION, raster);
 
     return raster[1] + input * ratio;
 }
@@ -220,11 +220,11 @@ void acGlPrintState() {
 }
 
 void acGlPrintGet(GLenum pname) {
-    float temp[16];
+    double temp[16];
     int i, j;
     switch (pname) {
     case GL_VIEWPORT:
-        glGetFloatv(pname, temp);
+        glGetDoublev(pname, temp);
         for (i = 0; i < 4; i++) {
             cout << temp[i] << "\t";
         }
@@ -232,7 +232,7 @@ void acGlPrintGet(GLenum pname) {
         break;
     case GL_PROJECTION_MATRIX:
     case GL_MODELVIEW_MATRIX:
-        glGetFloatv(pname, temp);
+        glGetDoublev(pname, temp);
         for (i = 0; i < 4; i++) {
             for (j = 0; j < 4; j++) {
                 cout << temp[i * 4 + j] << "\t";
@@ -241,7 +241,7 @@ void acGlPrintGet(GLenum pname) {
         }
         break;
     case GL_DEPTH_FUNC:
-        glGetFloatv(pname, temp);
+        glGetDoublev(pname, temp);
         printf("GL_DEPTH_FUNC: ");
         switch ((int) temp[0]) {
         case GL_LEQUAL:
@@ -259,7 +259,7 @@ void acGlPrintGet(GLenum pname) {
         }
         break;
     case GL_CURRENT_COLOR:
-        glGetFloatv(pname, temp);
+        glGetDoublev(pname, temp);
         printf("GL_CURRENT_COLOR: ");
         for (i = 0; i < 4; i++) {
             cout << temp[i] << "\t";
@@ -271,7 +271,7 @@ void acGlPrintGet(GLenum pname) {
 
 // For picking or selection, the projection and modelview are defined outside the
 // function, so that, it is able to be used in custom environment
-int acGlSelect(int x, int y, float* projection, float* modelview,
+int acGlSelect(int x, int y, double* projection, double* modelview,
                void (*draw)()) {
     GLuint buffer[512] = { 0 }; // For selection, initialise
     glSelectBuffer(512, buffer);
@@ -294,7 +294,7 @@ int acGlSelect(int x, int y, float* projection, float* modelview,
 
     gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), 1, 1, viewport);
 
-    glMultMatrixf(projection);
+    glMultMatrixd(projection);
 
     // This part is draw the object which can be selected. However, this
     // draw will only draw in memory, not displayed, therefore, the
@@ -302,7 +302,7 @@ int acGlSelect(int x, int y, float* projection, float* modelview,
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-    glMultMatrixf(modelview);
+    glMultMatrixd(modelview);
 
     // this->DrawTree();
     draw();
@@ -369,8 +369,8 @@ void acGlTextureProject(void* buffer, int width, int height, int depth,
 
     free(blank_t);
 
-    float u_rt = (float) width / 1024;
-    float v_rt = (float) height / 1024;
+    double u_rt = (double) width / 1024;
+    double v_rt = (double) height / 1024;
 
     if (depth == 4)
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA,
@@ -409,13 +409,13 @@ int acGlProcessHit(GLint hits, GLuint buffer[]) {
     ptr = buffer;
 
     if (hits > 0) {
-        float depth = 10;
+        double depth = 10;
 
         for (int i = 0; i < hits; i++) {
             nNames = *ptr++;
 
-            float z1 = (float) *ptr++ / 0x7fffffff;
-            float z2 = (float) *ptr++ / 0x7fffffff;
+            double z1 = (double) *ptr++ / 0x7fffffff;
+            double z2 = (double) *ptr++ / 0x7fffffff;
 
             if (z1 < depth) {
                 depth = z1;
@@ -430,8 +430,8 @@ int acGlProcessHit(GLint hits, GLuint buffer[]) {
     return choose;
 }
 
-int acGlSelect2(int x, int y, int width, int height, float* projection,
-                float* modelview, void (*draw)(),
+int acGlSelect2(int x, int y, int width, int height, double* projection,
+                double* modelview, void (*draw)(),
                 int (*processHit)(GLint hit, GLuint buffer[])) {
     GLuint buffer[512] = { 0 }; // For selection, initialise
     glSelectBuffer(512, buffer);
@@ -457,14 +457,14 @@ int acGlSelect2(int x, int y, int width, int height, float* projection,
     gluPickMatrix((GLdouble) x, (GLdouble) (viewport[3] - y), width, height,
                   viewport);
 
-    glMultMatrixf(projection);
+    glMultMatrixd(projection);
 
     // This part is draw the object which can be selected. However, this
     // draw will only draw in memory, not displayed, therefore, the
     // display looping must draw the same object so that the user can see them
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glLoadMatrixf(modelview);
+    glLoadMatrixd(modelview);
 
     // Callback
     draw();
@@ -551,7 +551,7 @@ int acGlSelectd(int x, int y, int width, int height, double* projection,
  * @brief Check object (point) is occluded or not
  * @return 0 if no occlusion, else 1.
  */
-int acGlIsOccluded(float objX, float objY, float objZ) {
+int acGlIsOccluded(double objX, double objY, double objZ) {
     GLdouble modelview[16];
     GLdouble projection[16];
     GLint viewport[4];
@@ -565,7 +565,7 @@ int acGlIsOccluded(float objX, float objY, float objZ) {
     gluProject(objX, objY, objZ, modelview, projection, viewport, &win[0],
                &win[1], &win[2]);
 
-    GLfloat buffer;
+    GLdouble buffer;
     glReadPixels(win[0], win[1], 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &buffer);
 
     if (buffer < win[2])

@@ -38,10 +38,6 @@ using namespace std;
 
 int AC_CV_DEBUG = 0;
 
-static int g_thresh = -1; // For storing auto threshold value
-static int g_needRandom = 1; // For checking need randomise the threshold or not
-static int g_isRandom = 0; // Check randomise performed or not
-
 int cvarReadCamera(const char* filename, CvarCamera* pCam) {
     // Use default value
     if (!filename) {
@@ -80,7 +76,7 @@ int cvarReadCamera(const char* filename, CvarCamera* pCam) {
 
     // Create OpenGL projection
     cvarCameraProjection(pCam, pCam->projection);
-    acMatrixTransposed(pCam->projection);
+    acMatrixTranspose(pCam->projection);
 
     return 1;
 }
@@ -89,8 +85,8 @@ void cvarCameraScale(CvarCamera* pCam, int width, int height) {
     // This scaling algorithm refer to ARToolKit arParamChangeSize()
 
     // Get ratio
-    float rt_u = (float) width / pCam->width;
-    float rt_v = (float) height / pCam->height;
+    double rt_u = (double) width / pCam->width;
+    double rt_v = (double) height / pCam->height;
 
     // ARToolKit only uses one ratio. But I used two ratio, so that, the data of the matrix
     // need to be scaled separately
@@ -107,7 +103,7 @@ void cvarCameraScale(CvarCamera* pCam, int width, int height) {
 
     // Recalculate OpenGL projection
     cvarCameraProjection(pCam, pCam->projection);
-    acMatrixTransposed(pCam->projection);
+    acMatrixTranspose(pCam->projection);
 }
 
 void cvarCameraProjection(CvarCamera* pCam, double* projection, int glstyle) {
@@ -115,8 +111,8 @@ void cvarCameraProjection(CvarCamera* pCam, double* projection, int glstyle) {
 
     // Set the near plane and far plane, based on ARToolKit
     // No more based on ARToolKit
-    float nearplane = 0.1f;
-    float farplane = 5000.0f;
+    double nearplane = 0.1f;
+    double farplane = 5000.0f;
 
     // Initialise with 0
     memset(projection, 0, sizeof(double) * 16);
@@ -130,7 +126,7 @@ void cvarCameraProjection(CvarCamera* pCam, double* projection, int glstyle) {
     projection[3 * 4 + 2] = -1;
 
     if (glstyle)
-        acMatrixTransposed(projection);
+        acMatrixTranspose(projection);
 }
 
 /**
@@ -271,7 +267,7 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
  * Initialise the points of square in 3D
  * @param mat    Must be 4*3 matrix with 64f (double)
  */
-void cvarSquareInit(CvMat* mat, float ratio) {
+void cvarSquareInit(CvMat* mat, double ratio) {
     mat->data.db[0] = -ratio;
     mat->data.db[1] = -1;
     mat->data.db[2] = 0;
@@ -591,7 +587,7 @@ void cvarInvertPerspective(IplImage* input, IplImage* output, CvPoint2D32f* src,
  * @param modelview [out]    Model view matrix
  */
 void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
-                        double* modelview, float ratio) {
+                        double* modelview, double ratio) {
     // Calculate matrix
     CvMat* imgPoint = cvCreateMat(4, 2, CV_64F);
     CvMat* objPoint = cvCreateMat(4, 3, CV_64F);
@@ -844,7 +840,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
                 // Add in ratio
-                marker.ratio = (float) vTpl[j].width / vTpl[j].height;
+                marker.ratio = (double) vTpl[j].width / vTpl[j].height;
 
                 // Add the marker info
                 vMarker2.push_back(marker);

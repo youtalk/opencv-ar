@@ -84,7 +84,7 @@ struct CvarMarker {
     double match; /**< Match level in range [0,1] (for comparison) */
     vector<CvPoint2D32f> pt; /**< The points of the marker */
     CvPoint2D32f square[4]; /**< Storing square vertices */
-    float ratio; /**< For the non-square rectangular, width:height ratio */
+    double ratio; /**< For the non-square rectangular, width:height ratio */
 };
 
 extern "C" {
@@ -141,7 +141,7 @@ AC_DLL CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage,
  * @param mat    Must be 4*3 matrix with 64f (double)
  * @param ratio    Ratio of width : height, it can be square or any rectangular
  */
-AC_DLL void cvarSquareInit(CvMat* mat, float ratio = 1);
+AC_DLL void cvarSquareInit(CvMat* mat, double ratio = 1);
 
 /**
  * @brief Reverse the order of the square
@@ -233,7 +233,7 @@ AC_DLL void cvarInvertPerspective(IplImage* input, IplImage* output,
  * @param ratio    Ratio of width:height, 1 = square
  */
 AC_DLL void cvarSquareToMatrix(CvPoint2D32f* points, CvarCamera* cam,
-                               double* modelview, float ratio = 1);
+                               double* modelview, double ratio = 1);
 
 /**
  * @brief Enable debug mode

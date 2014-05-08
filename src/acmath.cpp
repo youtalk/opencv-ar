@@ -36,102 +36,68 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
-void acVectorPrint(float *v) {
+void acVectorPrint(double *v) {
     for (int i = 0; i < 3; i++) {
         cout << v[i] << "\t";
     }
     cout << endl;
 }
 
-void acVectorAdd(float *v1, float *v2, float *vOut) {
+void acVectorAdd(double *v1, double *v2, double *vOut) {
     vOut[0] = v1[0] + v2[0];
     vOut[1] = v1[1] + v2[1];
     vOut[2] = v1[2] + v2[2];
 }
 
-void acVectorDeduct(float *v1, float *v2, float *vOut) {
+void acVectorDeduct(double *v1, double *v2, double *vOut) {
     vOut[0] = v1[0] - v2[0];
     vOut[1] = v1[1] - v2[1];
     vOut[2] = v1[2] - v2[2];
 }
 
-void acVectorCrossProduct(float *v1, float *v2, float *product) {
+void acVectorCrossProduct(double *v1, double *v2, double *product) {
     product[0] = v1[1] * v2[2] - v1[2] * v2[1];
     product[1] = -(v2[2] * v1[0] - v2[0] * v1[2]);
     product[2] = v1[0] * v2[1] - v1[1] * v2[0];
 }
 
-void acVectorNormal(float *v1, float *v2, float *v3, float *normal) {
+void acVectorNormal(double *v1, double *v2, double *v3, double *normal) {
     // Description:
     // v1, v2, and v3, should be vertices, with x,y,z for each vertex.
     // They are input value.
     //"normal" will be the output value. It must be a vector with x,y,z also
 
-    float temp[3], temp2[3];
+    double temp[3], temp2[3];
     acVectorDeduct(v2, v1, temp);
     acVectorDeduct(v3, v1, temp2);
     acVectorCrossProduct(temp, temp2, normal);
 }
 
-float acVectorMagnitude(float *v) {
-    return (float) sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+double acVectorMagnitude(double *v) {
+    return (double) sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 }
 
-void acVectorNormalise(float *vIn, float *vOut) {
-    float mag = acVectorMagnitude(vIn);
+void acVectorNormalise(double *vIn, double *vOut) {
+    double mag = acVectorMagnitude(vIn);
     vOut[0] = vIn[0] / mag;
     vOut[1] = vIn[1] / mag;
     vOut[2] = vIn[2] / mag;
 }
 
-void acVectorNormal2(float *v1, float *v2, float *v3, float *nv) {
-    float temp[3];
+void acVectorNormal2(double *v1, double *v2, double *v3, double *nv) {
+    double temp[3];
     acVectorNormal(v1, v2, v3, temp);
     acVectorNormalise(temp, nv);
 }
 
-float acRad2Deg(float rad) {
+double acRad2Deg(double rad) {
     return (rad * 180) / AC_PI;
 }
-float acDeg2Rad(float deg) {
+double acDeg2Rad(double deg) {
     return (deg * AC_PI) / 180;
 }
 
-void acMatrixRotate(float deg, float x, float y, float z, float *m) {
-    // This coding is according to the calculation of OpenGL, therefore the output matrix is also
-    // according to OpenGL matrix
-
-    float temp[16];
-    float c = cos(acDeg2Rad(deg));
-    float s = sin(acDeg2Rad(deg));
-
-    // Normalise the x,y,z
-    float mag = sqrt(x * x + y * y + z * z);
-    x = x / mag;
-    y = y / mag;
-    z = z / mag;
-
-    temp[0] = (x * x * (1 - c)) + c;
-    temp[4] = (x * y * (1 - c)) - (z * s);
-    temp[8] = (x * z * (1 - c)) + (y * s);
-    temp[12] = 0;
-    temp[1] = (y * x * (1 - c)) + (z * s);
-    temp[5] = (y * y * (1 - c)) + c;
-    temp[9] = (y * z * (1 - c)) - (x * s);
-    temp[13] = 0;
-    temp[2] = (x * z * (1 - c)) - (y * s);
-    temp[6] = (y * z * (1 - c)) + (x * s);
-    temp[10] = (z * z * (1 - c)) + c;
-    temp[14] = 0;
-    temp[3] = 0;
-    temp[7] = 0;
-    temp[11] = 0;
-    temp[15] = 1;
-
-    acMatrixMultiply(temp, m, m);
-}
-
-void acMatrixRotated(double deg, double x, double y, double z, double *m) {
+void acMatrixRotate(double deg, double x, double y, double z, double *m) {
     // This coding is according to the calculation of OpenGL, therefore the output matrix is also
     // according to OpenGL matrix
 
@@ -162,34 +128,11 @@ void acMatrixRotated(double deg, double x, double y, double z, double *m) {
     temp[11] = 0;
     temp[15] = 1;
 
-    acMatrixMultiplyd(temp, m, m);
+    acMatrixMultiply(temp, m, m);
 }
 
-void acMatrixTranslate(float x, float y, float z, float *m) {
-    float temp[16];
-
-    temp[0] = 1;
-    temp[4] = 0;
-    temp[8] = 0;
-    temp[12] = x;
-    temp[1] = 0;
-    temp[5] = 1;
-    temp[9] = 0;
-    temp[13] = y;
-    temp[2] = 0;
-    temp[6] = 0;
-    temp[10] = 1;
-    temp[14] = z;
-    temp[3] = 0;
-    temp[7] = 0;
-    temp[11] = 0;
-    temp[15] = 1;
-
-    acMatrixMultiply(temp, m, m); // Because of the multiplication is using row-majored
-}
-
-void acMatrixScale(float x, float y, float z, float *m) {
-    float temp[16];
+void acMatrixScale(double x, double y, double z, double *m) {
+    double temp[16];
 
     temp[0] = x;
     temp[4] = 0;
@@ -211,7 +154,7 @@ void acMatrixScale(float x, float y, float z, float *m) {
     acMatrixMultiply(temp, m, m);
 }
 
-void acMatrixIdentity(float *m) {
+void acMatrixIdentity(double *m) {
     for (int i = 0; i < 16; i++) {
         m[i] = 0;
     }
@@ -221,18 +164,7 @@ void acMatrixIdentity(float *m) {
     m[15] = 1;
 }
 
-float acMatrixDotProduct(float *m1, float *m2, int col, int row) {
-    // Dot product base on row-majored matrix
-    // Therefore, m1 and m2 should be row-majored matrix
-
-    float ret = 0;
-    for (int i = 0; i < 4; i++) {
-        ret += m1[row * 4 + i] * m2[i * 4 + col];
-    }
-    return ret;
-}
-
-float acMatrixDotProductd(double *m1, double *m2, int col, int row) {
+double acMatrixDotProduct(double *m1, double *m2, int col, int row) {
     // Dot product base on row-majored matrix
     // Therefore, m1 and m2 should be row-majored matrix
 
@@ -243,33 +175,20 @@ float acMatrixDotProductd(double *m1, double *m2, int col, int row) {
     return ret;
 }
 
-void acMatrixMultiply(float *m1, float *m2, float *mOut) {
-    // Based on row-majored matrix
-    // m1, m2 and mOut should be row-majored
-    float temp[16]; // Must use the temporary, because if the address of mOut is same
-    // as m1 or m2, the DotProduct value will be altered.
-    for (int j = 0; j < 4; j++) {
-        for (int i = 0; i < 4; i++) {
-            temp[j * 4 + i] = acMatrixDotProduct(m1, m2, i, j);
-        }
-    }
-    memcpy(mOut, temp, 16 * sizeof(float));
-}
-
-void acMatrixMultiplyd(double *m1, double *m2, double *mOut) {
+void acMatrixMultiply(double *m1, double *m2, double *mOut) {
     // Based on row-majored matrix
     // m1, m2 and mOut should be row-majored
     double temp[16]; // Must use the temporary, because if the address of mOut is same
     // as m1 or m2, the DotProduct value will be altered.
     for (int j = 0; j < 4; j++) {
         for (int i = 0; i < 4; i++) {
-            temp[j * 4 + i] = acMatrixDotProductd(m1, m2, i, j);
+            temp[j * 4 + i] = acMatrixDotProduct(m1, m2, i, j);
         }
     }
     memcpy(mOut, temp, 16 * sizeof(double));
 }
 
-void acMatrixPrint(float *m) {
+void acMatrixPrint(double *m) {
     for (int j = 0; j < 4; j++) {
         for (int i = 0; i < 4; i++) {
             printf("%f\t", m[j * 4 + i]);
@@ -279,25 +198,13 @@ void acMatrixPrint(float *m) {
     printf("\n");
 }
 
-void acMatrixTranspose(float *m) {
-    float temp[16];
-    memcpy(temp, m, 16 * sizeof(float));
+void acMatrixTranspose(double *m) {
+    double temp[16];
+    memcpy(temp, m, 16 * sizeof(double));
     for (int i = 0; i < 4; i++) {
         for (int j = 0; j < 4; j++) {
             m[j * 4 + i] = temp[i * 4 + j];
         }
-    }
-}
-
-/**
- * Transpose matrix in double type
- */
-void acMatrixTransposed(double* m) {
-    double temp[16];
-    memcpy(temp, m, 16 * sizeof(double));
-    for (int j = 0; j < 4; j++) {
-        for (int i = 0; i < 4; i++)
-            m[j * 4 + i] = temp[i * 4 + j];
     }
 }
 
@@ -395,8 +302,8 @@ double acCalcLength(AcPointf pt1, AcPointf pt2) {
  *
  ** From http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
  */
-float acMatrix4GetDeterminant(float m[]) {
-    float value = m[0 * 4 + 3] * m[1 * 4 + 2] * m[2 * 4 + 1] * m[3 * 4 + 0]
+double acMatrix4GetDeterminant(double m[]) {
+    double value = m[0 * 4 + 3] * m[1 * 4 + 2] * m[2 * 4 + 1] * m[3 * 4 + 0]
                   - m[0 * 4 + 2] * m[1 * 4 + 3] * m[2 * 4 + 1] * m[3 * 4 + 0]
                   - m[0 * 4 + 3] * m[1 * 4 + 1] * m[2 * 4 + 2] * m[3 * 4 + 0]
                   + m[0 * 4 + 1] * m[1 * 4 + 3] * m[2 * 4 + 2] * m[3 * 4 + 0]
@@ -429,8 +336,8 @@ float acMatrix4GetDeterminant(float m[]) {
  *
  * From http://www.euclideanspace.com/maths/algebra/matrix/functions/inverse/fourD/index.htm
  */
-void acMatrix4Invert(float m[]) {
-    float res[16] = { 0 };
+void acMatrix4Invert(double m[]) {
+    double res[16] = { 0 };
     res[0 * 4 + 0] = m[1 * 4 + 2] * m[2 * 4 + 3] * m[3 * 4 + 1]
                      - m[1 * 4 + 3] * m[2 * 4 + 2] * m[3 * 4 + 1]
                      + m[1 * 4 + 3] * m[2 * 4 + 1] * m[3 * 4 + 2]
@@ -528,7 +435,7 @@ void acMatrix4Invert(float m[]) {
                      - m[0 * 4 + 1] * m[1 * 4 + 0] * m[2 * 4 + 2]
                      + m[0 * 4 + 0] * m[1 * 4 + 1] * m[2 * 4 + 2];
 
-    float deter = acMatrix4GetDeterminant(m);
+    double deter = acMatrix4GetDeterminant(m);
     for (int i = 0; i < 16; i++) {
         m[i] = (1.0 / deter) * res[i];
     }
@@ -543,7 +450,7 @@ void acMatrix4Invert(float m[]) {
  * @param s    [out] Scale 3x1 vector
  * @param r    [out] Rotation 4x4 matrix
  */
-void acMatrixDecompose(float m[], float t[], float s[], float r[]) {
+void acMatrixDecompose(double m[], double t[], double s[], double r[]) {
     // Translation
     t[0] = m[0 * 4 + 3];
     t[1] = m[1 * 4 + 3];
@@ -558,14 +465,14 @@ void acMatrixDecompose(float m[], float t[], float s[], float r[]) {
             pow(m[2 * 4 + 0], 2) + pow(m[2 * 4 + 1], 2) + pow(m[2 * 4 + 2], 2));
 
     // Rotation
-    float rot[16] = { m[0 * 4 + 0] / s[0], m[0 * 4 + 1] / s[0], m[0 * 4 + 2]
+    double rot[16] = { m[0 * 4 + 0] / s[0], m[0 * 4 + 1] / s[0], m[0 * 4 + 2]
                                                                 / s[0],
                       0, m[1 * 4 + 0] / s[1], m[1 * 4 + 1] / s[1], m[1 * 4 + 2]
                                                                    / s[1],
                       0, m[2 * 4 + 0] / s[2], m[2 * 4 + 1] / s[2], m[2 * 4 + 2]
                                                                    / s[2],
                       0, 0, 0, 0, 1 };
-    memcpy(r, rot, sizeof(float) * 16);
+    memcpy(r, rot, sizeof(double) * 16);
 }
 
 /************

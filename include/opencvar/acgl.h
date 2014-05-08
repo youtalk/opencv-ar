@@ -89,7 +89,7 @@ AC_DLL void acGlTextureProject(void* buffer, int width, int height, int depth,
  * @param draw    Callback function to draw the selectable/pickable object
  * @return Return the "name" of the object, if no object selected, return 0.
  */
-AC_DLL int acGlSelect(int x, int y, float* projection, float* modelview,
+AC_DLL int acGlSelect(int x, int y, double* projection, double* modelview,
                       void (*draw)());
 
 /**
@@ -98,20 +98,20 @@ AC_DLL int acGlSelect(int x, int y, float* projection, float* modelview,
 AC_DLL void acGlGetWindowSize(int* width, int* height);
 
 /**
- * Get the ratio of "raster float" to "window pixel"
+ * Get the ratio of "raster double" to "window pixel"
  */
-AC_DLL float acGlPixelRasterRatioX();
-AC_DLL float acGlPixelRasterRatioY();
+AC_DLL double acGlPixelRasterRatioX();
+AC_DLL double acGlPixelRasterRatioY();
 
 /**
  * Super power conversion function. Actually, the pixel refers to the 3D transformation unit. Not the windows 2D pixel unit.
  * This is because, the pixels will be influenced by the 3D transformation.
  * Note: These functions should not be used after glRasterPos(), cause it will reset the state
  */
-AC_DLL float acGlPixel2RasterX(float input); // For raster, convert the value of glGet() to glRasterPos()
-AC_DLL float acGlRaster2PixelX(float input);
-AC_DLL float acGlPixel2RasterY(float input);
-AC_DLL float acGlRaster2PixelY(float input);
+AC_DLL double acGlPixel2RasterX(double input); // For raster, convert the value of glGet() to glRasterPos()
+AC_DLL double acGlRaster2PixelX(double input);
+AC_DLL double acGlPixel2RasterY(double input);
+AC_DLL double acGlRaster2PixelY(double input);
 
 /**
  * GLUT font functions
@@ -141,8 +141,8 @@ AC_DLL int acGlProcessHit(GLint hits, GLuint buffer[]);
  * @return If nothing, return -1
  */
 AC_DLL int acGlSelect2(
-        int x, int y, int width, int height, float* projection,
-        float* modelview, void (*draw)(),
+        int x, int y, int width, int height, double* projection,
+        double* modelview, void (*draw)(),
         int (*processHit)(GLint hit, GLuint buffer[]) = acGlProcessHit);
 
 /**
@@ -162,7 +162,7 @@ AC_DLL int acGlSelectd(
  * @brief Check object (point) is occluded or not
  * @return 0 if no occlusion, else 1.
  */
-AC_DLL int acGlIsOccluded(float objX, float objY, float objZ);
+AC_DLL int acGlIsOccluded(double objX, double objY, double objZ);
 
 } // extern
 
