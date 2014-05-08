@@ -327,7 +327,7 @@ void cvarFindCamera(CvarCamera* cam, CvMat* objPts, CvMat* imgPts,
  Augmented Reality
  ****************/
 
-int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename, double size) {
+int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename, double scale) {
     IplImage* file = cvLoadImage(filename, CV_LOAD_IMAGE_GRAYSCALE);
     if (!file) {
         return 0;
@@ -346,7 +346,7 @@ int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename, double size) {
     acArray2DToBit((unsigned char*) fileg->imageData, fileg->width,
                    fileg->height, &bit);
 
-    cvarLoadTag(tpl, bit, file->width - 2, file->height - 2);
+    cvarLoadTag(tpl, bit, file->width - 2, file->height - 2, scale);
 
     cvReleaseImage(&fileg);
     cvResetImageROI(file);
@@ -355,10 +355,10 @@ int cvarLoadTemplateTag(CvarTemplate* tpl, const char* filename, double size) {
 }
 
 void cvarLoadTag(CvarTemplate* tpl, long long int bit,
-                 int width, int height, double size) {
+                 int width, int height, double scale) {
     tpl->width = width;
     tpl->height = height;
-    tpl->size = size;
+    tpl->scale = scale;
 
     for (int i = 0; i < 4; i++) {
         tpl->code[i] = bit;
