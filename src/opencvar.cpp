@@ -393,7 +393,6 @@ int cvarCompareSquare(IplImage* img, CvPoint2D32f* points) {
 int cvarDrawSquares(IplImage* img, CvSeq* squares) {
     CvSeqReader reader;
     IplImage* cpy = cvCloneImage(img);
-    int i;
 
     // result
     int res = 0;
@@ -402,7 +401,7 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares) {
     cvStartReadSeq(squares, &reader, 0);
 
     // read 4 sequence elements at a time (all vertices of a square)
-    for (i = 0; i < squares->total; i += 4) {
+    for (int i = 0; i < squares->total; i += 4) {
         CvPoint pt[4], *rect = pt;
         int count = 4;
 
@@ -423,10 +422,8 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares) {
     return res;
 }
 
-int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
+int cvarGetSquare(CvSeq* squares, CvPoint2D32f* points) {
     CvSeqReader reader;
-    IplImage* cpy = cvCloneImage(img);
-    int i;
 
     // result
     int res = 0;
@@ -435,18 +432,14 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
     cvStartReadSeq(squares, &reader, 0);
 
     // read 4 sequence elements at a time (all vertices of a square)
-    for (i = 0; i < squares->total; i += 4) {
-        CvPoint pt[4], *rect = pt;
-        int count = 4;
+    for (int i = 0; i < squares->total; i += 4) {
+        CvPoint pt[4];
 
         // read 4 vertices
         CV_READ_SEQ_ELEM(pt[0], reader);
         CV_READ_SEQ_ELEM(pt[1], reader);
         CV_READ_SEQ_ELEM(pt[2], reader);
         CV_READ_SEQ_ELEM(pt[3], reader);
-
-        // draw the square as a closed polyline 
-        cvPolyLine(cpy, &rect, &count, 1, 1, CV_RGB(0,255,0), 1, CV_AA, 0);
 
         // Copy the points
         for (int j = 0; j < 4; j++) {
@@ -456,8 +449,6 @@ int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points) {
 
         res++;
     }
-
-    cvReleaseImage(&cpy);
 
     return res;
 }
@@ -734,8 +725,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         // For every template
         for (int j = 0; j < vTpl.size(); j++) {
 
-            pattern = cvarGetSquare(
-                    crop, cvarFindSquares(crop, patStorage), patPoint);
+            pattern = cvarGetSquare(cvarFindSquares(crop, patStorage), patPoint);
 
             if (pattern) {
                 // Create pattern image

@@ -194,7 +194,7 @@ AC_DLL int cvarDrawSquares(IplImage* img, CvSeq* squares);
 /**
  * @brief Get final square
  */
-AC_DLL int cvarGetSquare(IplImage* img, CvSeq* squares, CvPoint2D32f* points);
+AC_DLL int cvarGetSquare(CvSeq* squares, CvPoint2D32f* points);
 
 /**
  * @brief Create square value, no need release
