@@ -188,12 +188,8 @@ AC_DLL int cvarCompareSquare(IplImage* img, CvPoint2D32f* points);
 
 /**
  * @brief Draw the sqaure based on the sequence from FindSquare().
- *
- * Will only get the points of the final square.
- * @param draw    if==1, draw the square
  */
-AC_DLL int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
-                           int draw = 1);
+AC_DLL int cvarDrawSquares(IplImage* img, CvSeq* squares);
 
 /**
  * @brief Get final square

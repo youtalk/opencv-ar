@@ -390,8 +390,7 @@ int cvarCompareSquare(IplImage* img, CvPoint2D32f* points) {
     return match;
 }
 
-int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
-                    int draw) {
+int cvarDrawSquares(IplImage* img, CvSeq* squares) {
     CvSeqReader reader;
     IplImage* cpy = cvCloneImage(img);
     int i;
@@ -415,19 +414,10 @@ int cvarDrawSquares(IplImage* img, CvSeq* squares, CvPoint2D32f* points,
 
         // draw the square as a closed polyline 
         cvPolyLine(cpy, &rect, &count, 1, 1, CV_RGB(0,255,0), 1, CV_AA, 0);
-
-        // Copy the points
-        for (int j = 0; j < 4; j++) {
-            points[j].x = pt[j].x;
-            points[j].y = pt[j].y;
-        }
-
         res++;
     }
 
-    if (draw) {
-        cvCopy(cpy, img);
-    }
+    cvCopy(cpy, img);
     cvReleaseImage(&cpy);
 
     return res;
