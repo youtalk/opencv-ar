@@ -48,15 +48,12 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using namespace std;
 
-#define AC_THRESH_AUTO 1000
-
 /**
  * @brief The data structure, based on OpenCV intrinsic camera parameter
  */
 struct CvarCamera {
     int width;
     int height;
-
     double matrix[9]; /**< Camera matrix */
     double distortion[5]; /**< Distortion coefficients */
     double projection[16]; /**< OpenGL projection */
@@ -76,13 +73,12 @@ struct CvarTemplate {
  * @brief Marker
  */
 struct CvarMarker {
-    double modelview[16]; /**< OpenGL modelview matrix */
-    int tpl; /**< Possible matched template */
-    int id; /**< The index of detected marker in image source */
-    double match; /**< Match level in range [0,1] (for comparison) */
-    vector<CvPoint2D32f> pt; /**< The points of the marker */
+    double glMatrix[16]; /**< OpenGL modelview matrix */
+    int templateId; /**< Possible matched template */
+    int markerId; /**< The index of detected marker in image source */
+    double score; /**< Match level in range [0,1] (for comparison) */
     CvPoint2D32f square[4]; /**< Storing square vertices */
-    double ratio; /**< For the non-square rectangular, width:height ratio */
+    double aspectRatio; /**< For the non-square rectangular, width:height ratio */
 };
 
 extern "C" {

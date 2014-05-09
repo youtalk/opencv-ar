@@ -63,11 +63,11 @@ void display() {
         glEnable(GL_LIGHTING);
         glEnable(GL_LIGHT0);
 
-        glLoadMatrixd(marker.modelview);
+        glLoadMatrixd(marker.glMatrix);
         glRotatef(90, 1, 0, 0);
         glTranslatef(0, 0.5, 0);
 
-        if (marker.match > 0) {
+        if (marker.score > 0) {
             glFrontFace(GL_CW);
             glutSolidTeapot(1);
         } else {

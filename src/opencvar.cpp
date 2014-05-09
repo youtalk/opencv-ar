@@ -677,8 +677,8 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
 
                 // Recalculate the modelview
                 cvarSquareToMatrix((*vMarker)[i].square, cam,
-                                   (*vMarker)[i].modelview,
-                                   (*vMarker)[i].ratio);
+                                   (*vMarker)[i].glMatrix,
+                                   (*vMarker)[i].aspectRatio);
             }
         }
     }
@@ -733,8 +733,8 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                         cvSize(vTpl[j].width + 2, vTpl[j].height + 2), 8, 3);
                 patImage->origin = 1;
 
-                CvarMarker marker = { 0 }; // Important to initialise especially "match"
-                marker.id = i;
+                CvarMarker marker = { 0 }; // Important to initialise especially "score"
+                marker.markerId = i;
 
                 CvPoint2D32f patPointSrc[4];
                 cvarSquare(patPointSrc, vTpl[j].width + 2, vTpl[j].height + 2, 0);
@@ -763,18 +763,18 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                     }
                 }
 
-                // Match
+                // Score
                 if (orient)
-                    marker.match = 1; // So that it is the best
+                    marker.score = 1.0; // So that it is the best
                 else
-                    marker.match = 0;
+                    marker.score = 0.0;
 
                 // Release
                 cvReleaseImage(&patImageg);
                 cvResetImageROI(patImage);
 
                 // Record the current template so that later will be pushed into vector
-                marker.tpl = j;
+                marker.templateId = j;
 
                 switch (orient) {
                 case 4:
@@ -790,7 +790,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
                 // Add in ratio
-                marker.ratio = (double) vTpl[j].width / vTpl[j].height;
+                marker.aspectRatio = (double) vTpl[j].width / vTpl[j].height;
 
                 // Add the marker info
                 vMarker2.push_back(marker);
@@ -803,26 +803,25 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
     }
 
     // Process detected marker
-    // double matchVal=matchThresh;
     for (int i = 0; i < vMarker2.size(); i++) {
         // Compare with the other
         for (int j = 0; j < i; j++) {
             // If same detected marker, and same template, only one will survive
-            if (vMarker2[i].id == vMarker2[j].id
-                || vMarker2[i].tpl == vMarker2[j].tpl) {
-                if (vMarker2[i].match > vMarker2[j].match)
-                    vMarker2[j].id = -1;
+            if (vMarker2[i].markerId == vMarker2[j].markerId
+                || vMarker2[i].templateId == vMarker2[j].templateId) {
+                if (vMarker2[i].score > vMarker2[j].score)
+                    vMarker2[j].markerId = -1;
                 else
-                    vMarker2[i].id = -1;
+                    vMarker2[i].markerId = -1;
             }
         }
     }
 
     // To output
     for (int i = 0; i < vMarker2.size(); i++) {
-        if (vMarker2[i].tpl >= 0 && vMarker2[i].id >= 0) {
-            cvarSquareToMatrix(vMarker2[i].square, cam, vMarker2[i].modelview,
-                               vMarker2[i].ratio);
+        if (vMarker2[i].templateId >= 0 && vMarker2[i].markerId >= 0) {
+            cvarSquareToMatrix(vMarker2[i].square, cam, vMarker2[i].glMatrix,
+                               vMarker2[i].aspectRatio);
             vMarker->push_back(vMarker2[i]);
         }
     }
