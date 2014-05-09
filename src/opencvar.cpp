@@ -227,8 +227,7 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
                         && ((CvPoint*) cvGetSeqElem(result, 0))->y
                            < img->height - 2) {
                         for (i = 0; i < 4; i++)
-                            cvSeqPush(squares,
-                                      (CvPoint*) cvGetSeqElem(result, i));
+                            cvSeqPush(squares, (CvPoint*) cvGetSeqElem(result, i));
                     }
                 }
 
@@ -667,7 +666,6 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
     // Grayscaling
     IplImage* gray = cvCreateImage(cvSize(img->width, img->height), 8, 1);
     cvCvtColor(img, gray, CV_BGR2GRAY);
-    // cvThreshold(gray, gray, 100, 255, CV_THRESH_BINARY);
     cvCvtColor(gray, img, CV_GRAY2BGR);
     cvReleaseImage(&gray);
 
@@ -675,7 +673,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
     CvMemStorage* squareStorage = cvCreateMemStorage();
     vector<CvPoint2D32f> vPts;
     int nSquare = cvarGetAllSquares(
-            cvarFindSquares(img, squareStorage, 128, 0), &vPts);
+            cvarFindSquares(img, squareStorage), &vPts);
 
     // Checking for previous marker square
     vector<int> reserve; // For reserving the previous data
@@ -747,7 +745,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         for (int j = 0; j < vTpl.size(); j++) {
 
             pattern = cvarGetSquare(
-                    crop, cvarFindSquares(crop, patStorage, 128, 0), patPoint);
+                    crop, cvarFindSquares(crop, patStorage), patPoint);
 
             if (pattern) {
                 // Create pattern image
@@ -769,7 +767,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 // Binarise
                 IplImage* patImageg = cvCreateImage(cvGetSize(patImage), 8, 1);
                 cvCvtColor(patImage, patImageg, CV_BGR2GRAY);
-                cvThreshold(patImageg, patImageg, 128, 1, CV_THRESH_BINARY);
+                cvThreshold(patImageg, patImageg, 100, 1, CV_THRESH_BINARY);
 
                 // Image to bit
                 long long int bit = 0;
