@@ -39,10 +39,12 @@ using namespace std;
 int cvarReadCamera(const char* filename, CvarCamera* pCam) {
     // Use default value
     if (!filename) {
-        pCam->width = 320;
-        pCam->height = 240;
+        pCam->width = 640;
+        pCam->height = 480;
 
-        double cameraMatrix[] = { 350, 0, 160, 0, 350, 120, 0, 0, 1 };
+        double cameraMatrix[] = { 500, 0, pCam->width / 2.0,
+                                  0, 500, pCam->height / 2.0,
+                                  0, 0, 1 };
         memcpy(pCam->cameraMatrix, cameraMatrix, sizeof(double) * 9);
 
         double distCoeffs[] = { 0, 0, 0, 0, 0 };
@@ -52,9 +54,14 @@ int cvarReadCamera(const char* filename, CvarCamera* pCam) {
         if (!file)
             return 0;
 
+        CvSize size;
+        char dt[] = {'i'};
+        cvReadRawData(file, cvGetFileNodeByName(file, 0, "imageSize"), &size, dt);
+        pCam->width = size.width;
+        pCam->height = size.height;
+
         CvMat* cameraMatrix = (CvMat*) cvRead(
                 file, cvGetFileNodeByName(file, 0, "cameraMatrix"));
-        // Copy camera matrix
         memcpy(pCam->cameraMatrix, cameraMatrix->data.db, sizeof(double) * 9);
 
         CvMat* distCoeffs = (CvMat*) cvRead(
