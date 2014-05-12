@@ -54,9 +54,9 @@ using namespace std;
 struct CvarCamera {
     int width;
     int height;
-    double matrix[9]; /**< Camera matrix */
-    double distortion[5]; /**< Distortion coefficients */
-    double projection[16]; /**< OpenGL projection */
+    double cameraMatrix[9]; /**< Camera matrix */
+    double distCoeffs[5]; /**< Distortion coefficients */
+    double glProjection[16]; /**< OpenGL projection */
 };
 
 /**

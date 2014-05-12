@@ -42,31 +42,31 @@ int cvarReadCamera(const char* filename, CvarCamera* pCam) {
         pCam->width = 320;
         pCam->height = 240;
 
-        double mat[] = { 350, 0, 160, 0, 350, 120, 0, 0, 1 };
-        memcpy(pCam->matrix, mat, sizeof(double) * 9);
+        double cameraMatrix[] = { 350, 0, 160, 0, 350, 120, 0, 0, 1 };
+        memcpy(pCam->cameraMatrix, cameraMatrix, sizeof(double) * 9);
 
-        double distort[] = { 0, 0, 0, 0, 0 };
-        memcpy(pCam->distortion, distort, sizeof(double) * 5);
+        double distCoeffs[] = { 0, 0, 0, 0, 0 };
+        memcpy(pCam->distCoeffs, distCoeffs, sizeof(double) * 5);
     } else {
         CvFileStorage* file = cvOpenFileStorage(filename, 0, CV_STORAGE_READ);
         if (!file)
             return 0;
 
-        CvMat* camera = (CvMat*) cvRead(
+        CvMat* cameraMatrix = (CvMat*) cvRead(
                 file, cvGetFileNodeByName(file, 0, "cameraMatrix"));
         // Copy camera matrix
-        memcpy(pCam->matrix, camera->data.db, sizeof(double) * 9);
+        memcpy(pCam->cameraMatrix, cameraMatrix->data.db, sizeof(double) * 9);
 
-        CvMat* distortion = (CvMat*) cvRead(
+        CvMat* distCoeffs = (CvMat*) cvRead(
                 file, cvGetFileNodeByName(file, 0, "distCoeffs"));
-        memcpy(pCam->distortion, distortion->data.db, sizeof(double) * 5);
+        memcpy(pCam->distCoeffs, distCoeffs->data.db, sizeof(double) * 5);
 
         cvReleaseFileStorage(&file);
     }
 
     // Create OpenGL projection
-    cvarCameraProjection(pCam, pCam->projection);
-    acMatrixTranspose(pCam->projection);
+    cvarCameraProjection(pCam, pCam->glProjection);
+    acMatrixTranspose(pCam->glProjection);
 
     return 1;
 }
@@ -81,19 +81,19 @@ void cvarCameraScale(CvarCamera* pCam, int width, int height) {
     // ARToolKit only uses one ratio. But I used two ratio, so that, the data of the matrix
     // need to be scaled separately
     // fx,fy (focal length)
-    pCam->matrix[0] *= rt_u;
-    pCam->matrix[1 * 3 + 1] *= rt_v;
+    pCam->cameraMatrix[0] *= rt_u;
+    pCam->cameraMatrix[1 * 3 + 1] *= rt_v;
 
     // cx,cy (principal point)
-    pCam->matrix[2] *= rt_u;
-    pCam->matrix[1 * 3 + 2] *= rt_v;
+    pCam->cameraMatrix[2] *= rt_u;
+    pCam->cameraMatrix[1 * 3 + 2] *= rt_v;
 
     pCam->width = width;
     pCam->height = height;
 
     // Recalculate OpenGL projection
-    cvarCameraProjection(pCam, pCam->projection);
-    acMatrixTranspose(pCam->projection);
+    cvarCameraProjection(pCam, pCam->glProjection);
+    acMatrixTranspose(pCam->glProjection);
 }
 
 void cvarCameraProjection(CvarCamera* pCam, double* projection, int glstyle) {
@@ -101,16 +101,16 @@ void cvarCameraProjection(CvarCamera* pCam, double* projection, int glstyle) {
 
     // Set the near plane and far plane, based on ARToolKit
     // No more based on ARToolKit
-    double nearplane = 0.1f;
-    double farplane = 5000.0f;
+    double nearplane = 0.1;
+    double farplane = 5000.0;
 
     // Initialise with 0
     memset(projection, 0, sizeof(double) * 16);
 
-    projection[0] = 2. * pCam->matrix[0] / pCam->width;
-    projection[1 * 4 + 1] = 2. * pCam->matrix[1 * 3 + 1] / pCam->height;
-    projection[0 * 4 + 2] = 2. * (pCam->matrix[2] / pCam->width) - 1.;
-    projection[1 * 4 + 2] = 2. * (pCam->matrix[1 * 3 + 2] / pCam->height) - 1.;
+    projection[0] = 2. * pCam->cameraMatrix[0] / pCam->width;
+    projection[1 * 4 + 1] = 2. * pCam->cameraMatrix[1 * 3 + 1] / pCam->height;
+    projection[0 * 4 + 2] = 2. * (pCam->cameraMatrix[2] / pCam->width) - 1.;
+    projection[1 * 4 + 2] = 2. * (pCam->cameraMatrix[1 * 3 + 2] / pCam->height) - 1.;
     projection[2 * 4 + 2] = -(farplane + nearplane) / (farplane - nearplane);
     projection[2 * 4 + 3] = -2. * farplane * nearplane / (farplane - nearplane);
     projection[3 * 4 + 2] = -1;
@@ -284,8 +284,8 @@ void cvarReverseSquare(CvPoint2D32f sq[4]) {
  */
 void cvarFindCamera(CvarCamera* cam, CvMat* objPts, CvMat* imgPts,
                     double* modelview) {
-    CvMat camera = cvMat(3, 3, CV_64F, cam->matrix);
-    CvMat dist = cvMat(1, 5, CV_64F, cam->distortion);
+    CvMat camera = cvMat(3, 3, CV_64F, cam->cameraMatrix);
+    CvMat dist = cvMat(1, 5, CV_64F, cam->distCoeffs);
 
     CvMat* rotate = cvCreateMat(1, 3, CV_64F);
     CvMat* rotate3 = cvCreateMat(3, 3, CV_64F);
