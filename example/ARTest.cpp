@@ -38,6 +38,7 @@ CvarCamera camera;
 std::vector<CvarTemplate> templates;
 CvCapture* capture;
 std::vector<CvarMarker> markers;
+bool enabledAR = true;
 
 void display() {
     IplImage* frame = cvQueryFrame(capture);
@@ -59,24 +60,26 @@ void display() {
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
 
-    for (auto& marker : markers) {
-        glEnable(GL_LIGHTING);
-        glEnable(GL_LIGHT0);
+    if (enabledAR) {
+        for (auto& marker : markers) {
+            glEnable(GL_LIGHTING);
+            glEnable(GL_LIGHT0);
 
-        glLoadMatrixd(marker.glMatrix);
-        glRotatef(90, 1, 0, 0);
-        glTranslatef(0, 0.5, 0);
+            glLoadMatrixd(marker.glMatrix);
+            glRotatef(90, 1, 0, 0);
+            glTranslatef(0, 0.5, 0);
 
-        if (marker.score > 0) {
-            glFrontFace(GL_CW);
-            glutSolidTeapot(1);
-        } else {
-            glFrontFace(GL_CCW);
-            glutSolidCube(1);
+            if (marker.score > 0) {
+                glFrontFace(GL_CW);
+                glutSolidTeapot(1);
+            } else {
+                glFrontFace(GL_CCW);
+                glutSolidCube(1);
+            }
+
+
+            glDisable(GL_LIGHTING);
         }
-
-
-        glDisable(GL_LIGHTING);
     }
 
     glPopMatrix();
@@ -106,6 +109,9 @@ void keyboard(unsigned char key, int x, int y) {
     case 27:
         cvReleaseCapture(&capture);
         exit(0);
+        break;
+    case 'a':
+        enabledAR = !enabledAR;
         break;
     }
 }
