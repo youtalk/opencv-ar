@@ -120,13 +120,17 @@ int main(int argc, char** argv) {
         return -1;
     }
 
-    CvarTemplate tpl;
-    cvarLoadTemplateTag(&tpl, argv[2]);
-    templates.push_back(tpl);
+    CvarTemplate template_;
+    cvarLoadTemplateTag(&template_, argv[2]);
+    templates.push_back(template_);
 
-    IplImage* frame = cvQueryFrame(capture);
-    cvarReadCamera(NULL, &camera);
-    cvarCameraScale(&camera, frame->width, frame->height);
+    if (argc < 4) {
+        cvarReadCamera(argv[3], &camera);
+    } else {
+        IplImage* frame = cvQueryFrame(capture);
+        cvarReadCamera(NULL, &camera);
+        cvarCameraScale(&camera, frame->width, frame->height);
+    }
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
