@@ -647,56 +647,56 @@ int cvarTrack(CvPoint2D32f pt1[4], CvPoint2D32f pt2[4]) {
     return 0;
 }
 
-int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
-                           vector<CvarTemplate> vTpl, CvarCamera* cam) {
+int cvarArMultRegistration(IplImage* image, vector<CvarMarker>* markers,
+                           vector<CvarTemplate> templates, CvarCamera* camera) {
     CvMemStorage* patStorage = cvCreateMemStorage();
 
     // Grayscaling
-    IplImage* gray = cvCreateImage(cvSize(img->width, img->height), 8, 1);
-    cvCvtColor(img, gray, CV_BGR2GRAY);
-    cvCvtColor(gray, img, CV_GRAY2BGR);
+    IplImage* gray = cvCreateImage(cvSize(image->width, image->height), 8, 1);
+    cvCvtColor(image, gray, CV_BGR2GRAY);
+    cvCvtColor(gray, image, CV_GRAY2BGR);
     cvReleaseImage(&gray);
 
     // Find all squares
     CvMemStorage* squareStorage = cvCreateMemStorage();
     vector<CvPoint2D32f> vPts;
     int nSquare = cvarGetAllSquares(
-            cvarFindSquares(img, squareStorage), &vPts);
+            cvarFindSquares(image, squareStorage), &vPts);
 
     // Checking for previous marker square
     vector<int> reserve; // For reserving the previous data
 
-    for (int i = 0; i < vMarker->size(); i++) {
+    for (int i = 0; i < markers->size(); i++) {
         for (int j = 0; j < vPts.size(); j += 4) {
             // Points to array
-            CvPoint2D32f arrPoint[4];
+            CvPoint2D32f points[4];
             for (int k = 0; k < 4; k++) {
-                arrPoint[k] = vPts[j + k];
+                points[k] = vPts[j + k];
             }
 
             // If current is related to previous,
             // that means the previous one can be use, and the current one can be eliminated
-            if (cvarTrack((*vMarker)[i].square, arrPoint)) {
+            if (cvarTrack((*markers)[i].square, points)) {
                 reserve.push_back(i);
 
                 // Directly remove it from the vector, because removing is difficult
                 vPts.erase(vPts.begin() + j, vPts.begin() + j + 4); // Remove the 4 vertices
 
                 // Recalculate the modelview
-                cvarSquareToMatrix((*vMarker)[i].square, cam,
-                                   (*vMarker)[i].glMatrix,
-                                   (*vMarker)[i].aspectRatio);
+                cvarSquareToMatrix((*markers)[i].square, camera,
+                                   (*markers)[i].glMatrix,
+                                   (*markers)[i].aspectRatio);
             }
         }
     }
 
     // Make a copy of previous data
-    vector<CvarMarker> cpy = *vMarker;
-    vMarker->clear();
+    vector<CvarMarker> cpy = *markers;
+    markers->clear();
 
     // Store only the updated
     for (int i = 0; i < reserve.size(); i++) {
-        vMarker->push_back(cpy[reserve[i]]);
+        markers->push_back(cpy[reserve[i]]);
     }
 
     // For template matching part
@@ -718,37 +718,37 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
         rect.width += 10;
         rect.height += 10;
 
-        cvSetImageROI(img, rect);
-        IplImage* crop = cvCreateImage(cvGetSize(img), img->depth,
-                                       img->nChannels);
+        cvSetImageROI(image, rect);
+        IplImage* crop = cvCreateImage(cvGetSize(image), image->depth,
+                                       image->nChannels);
         crop->origin = 1;
-        cvCopy(img, crop);
-        cvResetImageROI(img);
+        cvCopy(image, crop);
+        cvResetImageROI(image);
 
         // Get pattern from within the square
         int pattern = 0;
         CvPoint2D32f patPoint[4] = { 0 };
 
         // For every template
-        for (int j = 0; j < vTpl.size(); j++) {
+        for (int j = 0; j < templates.size(); j++) {
 
             pattern = cvarGetSquare(cvarFindSquares(crop, patStorage), patPoint);
 
             if (pattern) {
                 // Create pattern image
                 IplImage* patImage = cvCreateImage(
-                        cvSize(vTpl[j].width + 2, vTpl[j].height + 2), 8, 3);
+                        cvSize(templates[j].width + 2, templates[j].height + 2), 8, 3);
                 patImage->origin = 1;
 
                 CvarMarker marker = { 0 }; // Important to initialise especially "score"
                 marker.markerId = i;
 
                 CvPoint2D32f patPointSrc[4];
-                cvarSquare(patPointSrc, vTpl[j].width + 2, vTpl[j].height + 2, 0);
+                cvarSquare(patPointSrc, templates[j].width + 2, templates[j].height + 2, 0);
                 cvarInvertPerspective(crop, patImage, patPoint, patPointSrc);
 
                 // Crop
-                CvRect croptag = cvRect(1, 1, vTpl[j].width, vTpl[j].height);
+                CvRect croptag = cvRect(1, 1, templates[j].width, templates[j].height);
                 cvSetImageROI(patImage, croptag);
 
                 // Binarise
@@ -764,7 +764,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 // Get orientation of the bit
                 int orient = 0;
                 for (int k = 0; k < 4; k++) {
-                    if (bit == vTpl[j].code[k]) {
+                    if (bit == templates[j].code[k]) {
                         orient = k + 1;
                         break;
                     }
@@ -797,7 +797,7 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
                 memcpy(marker.square, points, 4 * sizeof(CvPoint2D32f));
 
                 // Add in ratio
-                marker.aspectRatio = (double) vTpl[j].width / vTpl[j].height;
+                marker.aspectRatio = (double) templates[j].width / templates[j].height;
 
                 // Add the marker info
                 vMarker2.push_back(marker);
@@ -827,14 +827,14 @@ int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
     // To output
     for (int i = 0; i < vMarker2.size(); i++) {
         if (vMarker2[i].templateId >= 0 && vMarker2[i].markerId >= 0) {
-            cvarSquareToMatrix(vMarker2[i].square, cam, vMarker2[i].glMatrix,
+            cvarSquareToMatrix(vMarker2[i].square, camera, vMarker2[i].glMatrix,
                                vMarker2[i].aspectRatio);
-            vMarker->push_back(vMarker2[i]);
+            markers->push_back(vMarker2[i]);
         }
     }
 
     cvReleaseMemStorage(&patStorage);
     cvReleaseMemStorage(&squareStorage);
 
-    return vMarker->size();
+    return markers->size();
 }

@@ -253,13 +253,13 @@ int cvarTrack(CvPoint2D32f pt1[4], CvPoint2D32f pt2[4]);
 
 /**
  * @brief Multiple marker registration
- * @param img Incoming image
- * @param vMarker    Vector of marker, which will be stored with the marker information
- * @param vTemplate    Vector of template for template matching
- * @param cam    Camera data
+ * @param image Incoming image
+ * @param markers    Vector of marker, which will be stored with the marker information
+ * @param templates    Vector of template for template matching
+ * @param camera    Camera data
  */
-int cvarArMultRegistration(IplImage* img, vector<CvarMarker>* vMarker,
-                           vector<CvarTemplate> vTpl, CvarCamera* cam);
+int cvarArMultRegistration(IplImage* image, vector<CvarMarker>* markers,
+                           vector<CvarTemplate> templates, CvarCamera* camera);
 
 } // extern
 

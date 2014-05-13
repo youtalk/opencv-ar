@@ -77,7 +77,6 @@ void display() {
                 glutSolidCube(1);
             }
 
-
             glDisable(GL_LIGHTING);
         }
     }
