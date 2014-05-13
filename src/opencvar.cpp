@@ -659,19 +659,18 @@ int cvarArMultRegistration(IplImage* image, vector<CvarMarker>* markers,
 
     // Find all squares
     CvMemStorage* squareStorage = cvCreateMemStorage();
-    vector<CvPoint2D32f> vPts;
-    int nSquare = cvarGetAllSquares(
-            cvarFindSquares(image, squareStorage), &vPts);
+    vector<CvPoint2D32f> squares;
+    cvarGetAllSquares(cvarFindSquares(image, squareStorage), &squares);
 
     // Checking for previous marker square
     vector<int> reserve; // For reserving the previous data
 
     for (int i = 0; i < markers->size(); i++) {
-        for (int j = 0; j < vPts.size(); j += 4) {
+        for (int j = 0; j < squares.size(); j += 4) {
             // Points to array
             CvPoint2D32f points[4];
             for (int k = 0; k < 4; k++) {
-                points[k] = vPts[j + k];
+                points[k] = squares[j + k];
             }
 
             // If current is related to previous,
@@ -680,7 +679,7 @@ int cvarArMultRegistration(IplImage* image, vector<CvarMarker>* markers,
                 reserve.push_back(i);
 
                 // Directly remove it from the vector, because removing is difficult
-                vPts.erase(vPts.begin() + j, vPts.begin() + j + 4); // Remove the 4 vertices
+                squares.erase(squares.begin() + j, squares.begin() + j + 4); // Remove the 4 vertices
 
                 // Recalculate the modelview
                 cvarSquareToMatrix((*markers)[i].square, camera,
@@ -691,26 +690,25 @@ int cvarArMultRegistration(IplImage* image, vector<CvarMarker>* markers,
     }
 
     // Make a copy of previous data
-    vector<CvarMarker> cpy = *markers;
+    vector<CvarMarker> copy = *markers;
     markers->clear();
 
     // Store only the updated
     for (int i = 0; i < reserve.size(); i++) {
-        markers->push_back(cpy[reserve[i]]);
+        markers->push_back(copy[reserve[i]]);
     }
 
     // For template matching part
     CvPoint2D32f points[4]; // For calculation
-
-    vector<CvarMarker> vMarker2; // For calculation
+    vector<CvarMarker> candidates; // For calculation
 
     // For each square, check the pattern
-    for (int i = 0; i < vPts.size() / 4; i++) {
+    for (int i = 0; i < squares.size() / 4; i++) {
 
         // Get the subimage from the square
         // Vector to array
         for (int j = 0; j < 4; j++) {
-            points[j] = vPts[i * 4 + j];
+            points[j] = squares[i * 4 + j];
         }
         CvRect rect = cvarSquare2Rect(points);
         rect.x -= 5;
@@ -800,7 +798,7 @@ int cvarArMultRegistration(IplImage* image, vector<CvarMarker>* markers,
                 marker.aspectRatio = (double) templates[j].width / templates[j].height;
 
                 // Add the marker info
-                vMarker2.push_back(marker);
+                candidates.push_back(marker);
 
                 cvReleaseImage(&patImage);
             }
@@ -810,26 +808,26 @@ int cvarArMultRegistration(IplImage* image, vector<CvarMarker>* markers,
     }
 
     // Process detected marker
-    for (int i = 0; i < vMarker2.size(); i++) {
+    for (int i = 0; i < candidates.size(); i++) {
         // Compare with the other
         for (int j = 0; j < i; j++) {
             // If same detected marker, and same template, only one will survive
-            if (vMarker2[i].markerId == vMarker2[j].markerId
-                || vMarker2[i].templateId == vMarker2[j].templateId) {
-                if (vMarker2[i].score > vMarker2[j].score)
-                    vMarker2[j].markerId = -1;
+            if (candidates[i].markerId == candidates[j].markerId
+                || candidates[i].templateId == candidates[j].templateId) {
+                if (candidates[i].score > candidates[j].score)
+                    candidates[j].markerId = -1;
                 else
-                    vMarker2[i].markerId = -1;
+                    candidates[i].markerId = -1;
             }
         }
     }
 
     // To output
-    for (int i = 0; i < vMarker2.size(); i++) {
-        if (vMarker2[i].templateId >= 0 && vMarker2[i].markerId >= 0) {
-            cvarSquareToMatrix(vMarker2[i].square, camera, vMarker2[i].glMatrix,
-                               vMarker2[i].aspectRatio);
-            markers->push_back(vMarker2[i]);
+    for (int i = 0; i < candidates.size(); i++) {
+        if (candidates[i].templateId >= 0 && candidates[i].markerId >= 0) {
+            cvarSquareToMatrix(candidates[i].square, camera, candidates[i].glMatrix,
+                               candidates[i].aspectRatio);
+            markers->push_back(candidates[i]);
         }
     }
 
