@@ -156,7 +156,6 @@ void cvarGlMatrix(double* modelview, CvMat* rotate3, CvMat* translate) {
 CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
                        int inner) {
     CvSeq* contours;
-    int i, c, l, N = 11;
     CvSize sz = cvSize(img->width & -2, img->height & -2);
     IplImage* timg = cvCloneImage(img); // make a copy of input image
     IplImage* gray = cvCreateImage(sz, 8, 1);
@@ -178,70 +177,52 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
     cvPyrUp(pyr, timg, 7);
     tgray = cvCreateImage(sz, 8, 1);
 
-    // find squares in every color plane of the image
-    for (c = 0; c < 1; c++) {
-        // extract the c-th color plane
-        // Convert the image to grayscale
-        cvCvtColor(timg, tgray, CV_BGR2GRAY);
+    // find contours and store them all as a list
+    cvCvtColor(timg, tgray, CV_BGR2GRAY);
+    cvThreshold(tgray, gray, threshold, 255, CV_THRESH_BINARY);
+    cvFindContours(gray, storage, &contours, sizeof(CvContour), CV_RETR_LIST,
+                   CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
 
-        // try several threshold levels
-        // Modified: using only one threshold value
-        for (l = 0; l < 1; l++) {
-            cvThreshold(tgray, gray, threshold, 255, CV_THRESH_BINARY);
+    // test each contour
+    while (contours) {
+        // approximate contour with accuracy proportional
+        // to the contour perimeter
+        result = cvApproxPoly(contours, sizeof(CvContour), storage,
+                              CV_POLY_APPROX_DP,
+                              cvContourPerimeter(contours) * 0.02, 0);
 
-            // find contours and store them all as a list
-            cvFindContours(gray, storage, &contours, sizeof(CvContour),
-                           CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
+        // square contours should have 4 vertices after approximation
+        // relatively large area (to filter out noisy contours)
+        // and be convex.
 
-            // test each contour
-            while (contours) {
-                // approximate contour with accuracy proportional
-                // to the contour perimeter
-                result = cvApproxPoly(contours, sizeof(CvContour), storage,
-                                      CV_POLY_APPROX_DP,
-                                      cvContourPerimeter(contours) * 0.02, 0);
+        // check contour
+        int checkContour;
+        switch (inner) {
+        case 0:
+            checkContour = cvContourArea(result, CV_WHOLE_SEQ) > 500;
+            break;
+        case 1:
+            checkContour = cvContourArea(result, CV_WHOLE_SEQ) < -500;
+            break;
+        case 2:
+            checkContour = fabs(cvContourArea(result, CV_WHOLE_SEQ)) > 500;
+            break;
+        }
 
-                // square contours should have 4 vertices after approximation
-                // relatively large area (to filter out noisy contours)
-                // and be convex.
-                // Note: absolute value of an area is used because
-                // area may be positive or negative - in accordance with the
-                // contour orientation
-                // Modified: only positive contour will be returned
-
-                // Check contour
-                int chkContour;
-                switch (inner) {
-                case 0:
-                    chkContour = cvContourArea(result, CV_WHOLE_SEQ) > 500;
-                    break;
-                case 1:
-                    chkContour = cvContourArea(result, CV_WHOLE_SEQ) < -500;
-                    break;
-                case 2:
-                    chkContour = fabs(cvContourArea(result, CV_WHOLE_SEQ)) > 500;
-                    break;
-                }
-
-                if (result->total == 4 && chkContour
-                    && cvCheckContourConvexity(result)) {
-                    // Only if the square is smaller than the image
-                    // Modified: No need calculation of the angle
-                    if (((CvPoint*) cvGetSeqElem(result, 0))->x > 2
-                        && ((CvPoint*) cvGetSeqElem(result, 0))->x
-                           < img->width - 2
-                        && ((CvPoint*) cvGetSeqElem(result, 0))->y > 2
-                        && ((CvPoint*) cvGetSeqElem(result, 0))->y
-                           < img->height - 2) {
-                        for (i = 0; i < 4; i++)
-                            cvSeqPush(squares, (CvPoint*) cvGetSeqElem(result, i));
-                    }
-                }
-
-                // take the next contour
-                contours = contours->h_next;
+        if (result->total == 4 && checkContour &&
+            cvCheckContourConvexity(result)) {
+            // Only if the square is smaller than the image
+            if (((CvPoint*) cvGetSeqElem(result, 0))->x > 2 &&
+                ((CvPoint*) cvGetSeqElem(result, 0))->x < img->width - 2 &&
+                ((CvPoint*) cvGetSeqElem(result, 0))->y > 2 &&
+                ((CvPoint*) cvGetSeqElem(result, 0))->y < img->height - 2) {
+                for (int i = 0; i < 4; i++)
+                    cvSeqPush(squares, (CvPoint*) cvGetSeqElem(result, i));
             }
         }
+
+        // take the next contour
+        contours = contours->h_next;
     }
 
     // release all the temporary images
