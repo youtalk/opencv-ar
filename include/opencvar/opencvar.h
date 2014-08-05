@@ -125,10 +125,8 @@ AC_DLL void cvarGlMatrix(double* modelview, CvMat* rotate3, CvMat* translate);
  * @brief This is modified version of findquares4()
  *
  * Only the square in darker will return.
- * @param inner    0 - inner is black, 1 - white, 2 - both
  */
-AC_DLL CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage,
-                              int inner = 0);
+AC_DLL CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage);
 
 /**
  * @brief Initialise the points of square in 3D

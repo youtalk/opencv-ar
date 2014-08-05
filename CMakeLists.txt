@@ -25,8 +25,8 @@ SET(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -Wall")
 SET(CMAKE_CXX_FLAGS_RELEASE "-O3 -DNDEBUG")
 SET(CMAKE_CXX_LINK_FLAGS_DEBUG "-pg")
 
-SET(VERSION "0.9.9")
-SET(SOVERSION "0.9")
+SET(VERSION "1.0.0")
+SET(SOVERSION "1.0")
 
 SET(SRC
   src/acgl.cpp src/acmath.cpp src/opencvar.cpp)

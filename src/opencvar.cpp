@@ -153,7 +153,7 @@ void cvarGlMatrix(double* modelview, CvMat* rotate3, CvMat* translate) {
 
 // returns sequence of squares detected on the image.
 // the sequence is stored in the specified memory storage
-CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int inner) {
+CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage) {
     CvSeq* contours;
     CvSize sz = cvSize(img->width & -2, img->height & -2);
     IplImage* timg = cvCloneImage(img); // make a copy of input image
@@ -196,26 +196,14 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int inner) {
         // and be convex.
 
         // check contour
-        int checkContour;
-        switch (inner) {
-        case 0:
-            checkContour = cvContourArea(result, CV_WHOLE_SEQ) > 500;
-            break;
-        case 1:
-            checkContour = cvContourArea(result, CV_WHOLE_SEQ) < -500;
-            break;
-        case 2:
-            checkContour = fabs(cvContourArea(result, CV_WHOLE_SEQ)) > 500;
-            break;
-        }
+        int checkContour = fabs(cvContourArea(result, CV_WHOLE_SEQ)) > 500;
 
         if (result->total == 4 && checkContour &&
             cvCheckContourConvexity(result)) {
             // Only if the square is smaller than the image
-            if (((CvPoint*) cvGetSeqElem(result, 0))->x > 2 &&
-                ((CvPoint*) cvGetSeqElem(result, 0))->x < img->width - 2 &&
-                ((CvPoint*) cvGetSeqElem(result, 0))->y > 2 &&
-                ((CvPoint*) cvGetSeqElem(result, 0))->y < img->height - 2) {
+            CvPoint* p = (CvPoint*) cvGetSeqElem(result, 0);
+            if (p->x > 2 && p->x < img->width - 2 &&
+                p->y > 2 && p->y < img->height - 2) {
                 for (int i = 0; i < 4; i++)
                     cvSeqPush(squares, (CvPoint*) cvGetSeqElem(result, i));
             }
