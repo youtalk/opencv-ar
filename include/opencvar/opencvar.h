@@ -128,7 +128,7 @@ AC_DLL void cvarGlMatrix(double* modelview, CvMat* rotate3, CvMat* translate);
  * @param inner    0 - inner is black, 1 - white, 2 - both
  */
 AC_DLL CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage,
-                              int threshold = 100, int inner = 0);
+                              int inner = 0);
 
 /**
  * @brief Initialise the points of square in 3D

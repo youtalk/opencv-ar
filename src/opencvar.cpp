@@ -153,12 +153,11 @@ void cvarGlMatrix(double* modelview, CvMat* rotate3, CvMat* translate) {
 
 // returns sequence of squares detected on the image.
 // the sequence is stored in the specified memory storage
-CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
-                       int inner) {
+CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int inner) {
     CvSeq* contours;
     CvSize sz = cvSize(img->width & -2, img->height & -2);
     IplImage* timg = cvCloneImage(img); // make a copy of input image
-    IplImage* gray = cvCreateImage(sz, 8, 1);
+    IplImage* tbinary = cvCreateImage(sz, 8, 1);
     IplImage* pyr = cvCreateImage(cvSize(sz.width / 2, sz.height / 2), 8, 3);
     IplImage* tgray;
     CvSeq* result;
@@ -179,8 +178,9 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
 
     // find contours and store them all as a list
     cvCvtColor(timg, tgray, CV_BGR2GRAY);
-    cvThreshold(tgray, gray, threshold, 255, CV_THRESH_BINARY);
-    cvFindContours(gray, storage, &contours, sizeof(CvContour), CV_RETR_LIST,
+    cvAdaptiveThreshold(tgray, tbinary, 255,
+                        CV_ADAPTIVE_THRESH_GAUSSIAN_C, CV_THRESH_BINARY, 7, 8);
+    cvFindContours(tbinary, storage, &contours, sizeof(CvContour), CV_RETR_LIST,
                    CV_CHAIN_APPROX_SIMPLE, cvPoint(0, 0));
 
     // test each contour
@@ -226,7 +226,7 @@ CvSeq* cvarFindSquares(IplImage* img, CvMemStorage* storage, int threshold,
     }
 
     // release all the temporary images
-    cvReleaseImage(&gray);
+    cvReleaseImage(&tbinary);
     cvReleaseImage(&pyr);
     cvReleaseImage(&tgray);
     cvReleaseImage(&timg);
